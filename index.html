@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -7,764 +6,908 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Stocker - 주식 시뮬레이션</title>
     <style>
-        /* ============================================
-           style.css - 모바일 특화 스타일
-           ============================================ */
-
-```
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-    }
-
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: #0a0e27;
-        color: #e0e0e0;
-        overflow-x: hidden;
-        padding-bottom: 80px;
-        user-select: none;
-        -webkit-user-select: none;
-    }
-
-    .container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 15px;
-        padding-top: 70px;
-    }
-
-    /* Header - Fixed */
-    .header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        padding: 12px 15px;
-        z-index: 100;
-        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-    }
-
-    .header-content {
-        max-width: 600px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .logo {
-        font-size: 20px;
-        font-weight: 800;
-        color: white;
-    }
-
-    .time-controls {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-
-    .time-info {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 14px;
-        min-width: 110px;
-        text-align: center;
-    }
-
-    .status-badge {
-        background: rgba(239, 68, 68, 0.3);
-        color: #fca5a5;
-        padding: 6px 12px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 12px;
-    }
-
-    .status-badge.open {
-        background: rgba(16, 185, 129, 0.3);
-        color: #6ee7b7;
-    }
-
-    .btn-control {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 8px;
-        font-size: 18px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .btn-control:active {
-        transform: scale(0.95);
-    }
-
-    .btn-next-day {
-        background: #10b981;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    /* Dashboard */
-    .dashboard {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-    .stat-card {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid rgba(59, 130, 246, 0.2);
-    }
-
-    .stat-label {
-        font-size: 11px;
-        color: #94a3b8;
-        margin-bottom: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .stat-value {
-        font-size: 18px;
-        font-weight: 700;
-        color: white;
-        word-break: break-all;
-    }
-
-    .positive { color: #10b981; }
-    .negative { color: #ef4444; }
-
-    /* Content Panels */
-    .content-panel {
-        display: none;
-        min-height: calc(100vh - 250px);
-    }
-
-    .content-panel.active {
-        display: block;
-    }
-
-    /* Stock List */
-    .filters {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 15px;
-        overflow-x: auto;
-        padding-bottom: 5px;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .filters::-webkit-scrollbar {
-        display: none;
-    }
-
-    .filter-btn {
-        background: #334155;
-        color: #e0e0e0;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 13px;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-
-    .filter-btn.active {
-        background: #3b82f6;
-        color: white;
-    }
-
-    .stock-list {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .stock-item {
-        background: #1e293b;
-        padding: 15px;
-        border-radius: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: 1px solid transparent;
-    }
-
-    .stock-item:active {
-        background: #334155;
-        border-color: #3b82f6;
-    }
-
-    .stock-info {
-        flex: 1;
-    }
-
-    .stock-name {
-        font-weight: 600;
-        font-size: 15px;
-        margin-bottom: 4px;
-    }
-
-    .stock-ticker {
-        font-size: 11px;
-        color: #94a3b8;
-    }
-
-    .stock-price {
-        text-align: right;
-        min-width: 100px;
-    }
-
-    .price {
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-
-    .change {
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    /* Modal */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.9);
-        z-index: 1000;
-        align-items: flex-end;
-    }
-
-    .modal.active {
-        display: flex;
-    }
-
-    .modal-content {
-        background: #1e293b;
-        border-radius: 20px 20px 0 0;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-        from {
-            transform: translateY(100%);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        to {
-            transform: translateY(0);
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            user-select: none;
+            -webkit-user-select: none;
         }
-    }
 
-    .modal-header {
-        padding: 20px;
-        border-bottom: 1px solid #334155;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: sticky;
-        top: 0;
-        background: #1e293b;
-        z-index: 10;
-    }
-
-    .modal-close {
-        background: none;
-        border: none;
-        color: #94a3b8;
-        font-size: 28px;
-        cursor: pointer;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-    }
-
-    .modal-close:active {
-        background: #334155;
-    }
-
-    .modal-body {
-        padding: 20px;
-    }
-
-    .stock-detail-header {
-        margin-bottom: 20px;
-    }
-
-    .detail-price {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .mini-chart {
-        background: #0f172a;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-        height: 120px;
-        display: flex;
-        align-items: flex-end;
-        gap: 2px;
-    }
-
-    .chart-bar {
-        flex: 1;
-        background: #3b82f6;
-        border-radius: 2px 2px 0 0;
-        min-height: 10px;
-        transition: all 0.2s;
-    }
-
-    .chart-bar.up { background: #10b981; }
-    .chart-bar.down { background: #ef4444; }
-
-    .holding-info {
-        background: #0f172a;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    .holding-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-        font-size: 14px;
-    }
-
-    .trade-section {
-        background: #0f172a;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    .trade-disabled {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    .disabled-message {
-        text-align: center;
-        color: #94a3b8;
-        font-size: 14px;
-        padding: 20px;
-        background: #0f172a;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    .input-group {
-        margin-bottom: 15px;
-    }
-
-    .input-group label {
-        display: block;
-        font-size: 12px;
-        color: #94a3b8;
-        margin-bottom: 6px;
-    }
-
-    .input-group input {
-        width: 100%;
-        background: #1e293b;
-        border: 1px solid #334155;
-        color: white;
-        padding: 12px;
-        border-radius: 8px;
-        font-size: 16px;
-    }
-
-    .input-group input:focus {
-        outline: none;
-        border-color: #3b82f6;
-    }
-
-    .trade-buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 15px;
-    }
-
-    .btn-trade {
-        padding: 14px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .btn-trade:active {
-        transform: scale(0.98);
-    }
-
-    .btn-buy {
-        background: #10b981;
-        color: white;
-    }
-
-    .btn-sell {
-        background: #ef4444;
-        color: white;
-    }
-
-    .btn-trade:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    /* News */
-    .news-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .news-item {
-        background: #1e293b;
-        padding: 15px;
-        border-radius: 12px;
-        border-left: 4px solid #3b82f6;
-    }
-
-    .news-item.company { border-left-color: #3b82f6; }
-    .news-item.sector { border-left-color: #8b5cf6; }
-    .news-item.market { border-left-color: #f59e0b; }
-
-    .news-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-        font-size: 11px;
-        color: #94a3b8;
-    }
-
-    .news-title {
-        font-weight: 600;
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-
-    .news-description {
-        font-size: 13px;
-        color: #94a3b8;
-        line-height: 1.5;
-    }
-
-    .news-impact {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-        margin-top: 8px;
-    }
-
-    .impact-positive {
-        background: rgba(16, 185, 129, 0.2);
-        color: #10b981;
-    }
-
-    .impact-negative {
-        background: rgba(239, 68, 68, 0.2);
-        color: #ef4444;
-    }
-
-    /* Portfolio */
-    .portfolio-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .portfolio-item {
-        background: #1e293b;
-        padding: 15px;
-        border-radius: 12px;
-    }
-
-    .portfolio-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-    }
-
-    .portfolio-name {
-        font-weight: 600;
-        font-size: 15px;
-    }
-
-    .portfolio-ticker {
-        font-size: 11px;
-        color: #94a3b8;
-    }
-
-    .portfolio-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .portfolio-stat {
-        background: #0f172a;
-        padding: 10px;
-        border-radius: 8px;
-    }
-
-    .portfolio-label {
-        font-size: 10px;
-        color: #94a3b8;
-        margin-bottom: 4px;
-    }
-
-    .portfolio-value {
-        font-weight: 600;
-        font-size: 13px;
-    }
-
-    /* Account */
-    .account-section {
-        background: #1e293b;
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 15px;
-    }
-
-    .section-title {
-        font-weight: 600;
-        font-size: 16px;
-        margin-bottom: 15px;
-    }
-
-    .btn-full {
-        width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-top: 10px;
-    }
-
-    .btn-primary {
-        background: #3b82f6;
-        color: white;
-    }
-
-    .btn-primary:active {
-        background: #2563eb;
-        transform: scale(0.98);
-    }
-
-    /* Confirm Modal */
-    .confirm-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 2000;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-
-    .confirm-modal.active {
-        display: flex;
-    }
-
-    .confirm-content {
-        background: #1e293b;
-        border-radius: 16px;
-        padding: 24px;
-        max-width: 350px;
-        width: 100%;
-        animation: scaleIn 0.2s ease;
-    }
-
-    @keyframes scaleIn {
-        from {
-            transform: scale(0.9);
-            opacity: 0;
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+            padding-top: 70px;
         }
-        to {
-            transform: scale(1);
-            opacity: 1;
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 12px 15px;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
         }
-    }
 
-    .confirm-title {
-        font-weight: 600;
-        font-size: 18px;
-        margin-bottom: 12px;
-    }
-
-    .confirm-message {
-        color: #94a3b8;
-        font-size: 14px;
-        margin-bottom: 20px;
-        line-height: 1.5;
-    }
-
-    .confirm-buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .btn-confirm {
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .btn-cancel {
-        background: #334155;
-        color: white;
-    }
-
-    .btn-ok {
-        background: #3b82f6;
-        color: white;
-    }
-
-    /* GNB - Fixed Bottom */
-    .gnb {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #1e293b;
-        border-top: 1px solid #334155;
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        z-index: 100;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
-    }
-
-    .gnb-item {
-        padding: 10px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        border: none;
-        background: none;
-        color: #94a3b8;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .gnb-item:active {
-        background: #334155;
-    }
-
-    .gnb-item.active {
-        color: #3b82f6;
-    }
-
-    .gnb-icon {
-        font-size: 20px;
-    }
-
-    .gnb-label {
-        font-size: 10px;
-        font-weight: 600;
-    }
-
-    /* Toast */
-    .toast {
-        position: fixed;
-        bottom: 100px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1e293b;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        z-index: 2000;
-        animation: slideIn 0.3s ease;
-        max-width: 90%;
-        text-align: center;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateX(-50%) translateY(20px);
-            opacity: 0;
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        to {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
         }
-    }
 
-    /* Empty State */
-    .empty-state {
-        color: #94a3b8;
-        text-align: center;
-        padding: 40px 20px;
-        font-size: 14px;
-    }
+        .time-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-        width: 6px;
-    }
+        .time-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            min-width: 110px;
+            text-align: center;
+        }
 
-    ::-webkit-scrollbar-track {
-        background: #0f172a;
-    }
+        .status-badge {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+        }
 
-    ::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 3px;
-    }
-</style>
-```
+        .status-badge.open {
+            background: rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
 
+        .btn-control {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-control:active {
+            transform: scale(0.95);
+        }
+
+        .btn-next-day {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            word-break: break-all;
+        }
+
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+
+        /* Content Panels */
+        .content-panel {
+            display: none;
+            min-height: calc(100vh - 250px);
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        /* Stock List */
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            background: #334155;
+            color: #e0e0e0;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .stock-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stock-item {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .stock-item:active {
+            background: #334155;
+            border-color: #3b82f6;
+        }
+
+        .stock-info {
+            flex: 1;
+        }
+
+        .stock-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .stock-ticker {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .stock-price {
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .price {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: flex-end;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: #1e293b;
+            z-index: 10;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:active {
+            background: #334155;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .stock-detail-header {
+            margin-bottom: 20px;
+        }
+
+        .detail-price {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .mini-chart {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            height: 120px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: #3b82f6;
+            border-radius: 2px 2px 0 0;
+            min-height: 10px;
+            transition: all 0.2s;
+        }
+
+        .chart-bar.up { background: #10b981; }
+        .chart-bar.down { background: #ef4444; }
+
+        .holding-info {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .holding-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .trade-section {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .trade-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .disabled-message {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 14px;
+            padding: 20px;
+            background: #0f172a;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .trade-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .trade-info-label {
+            color: #94a3b8;
+        }
+
+        .trade-info-value {
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .input-display {
+            width: 100%;
+            background: #1e293b;
+            border: 2px solid #334155;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 20px;
+            text-align: right;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 50px;
+        }
+
+        .input-display:active {
+            border-color: #3b82f6;
+        }
+
+        .input-display.empty {
+            color: #64748b;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .trade-estimate {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .estimate-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .estimate-row:last-child {
+            margin-bottom: 0;
+            padding-top: 8px;
+            border-top: 1px solid #334155;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .trade-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-trade {
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-trade:active {
+            transform: scale(0.98);
+        }
+
+        .btn-buy {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-sell {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-trade:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Numpad Modal */
+        .numpad-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            align-items: flex-end;
+        }
+
+        .numpad-modal.active {
+            display: flex;
+        }
+
+        .numpad-content {
+            background: #1e293b;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .numpad-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .numpad-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .numpad-display {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: right;
+            font-size: 32px;
+            font-weight: 700;
+            min-height: 70px;
+            color: white;
+        }
+
+        .numpad-display.empty {
+            color: #64748b;
+            font-size: 20px;
+        }
+
+        .numpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .numpad-btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .numpad-btn:active {
+            background: #475569;
+            transform: scale(0.95);
+        }
+
+        .numpad-btn.zero {
+            grid-column: span 2;
+        }
+
+        .numpad-btn.backspace {
+            background: #ef4444;
+            font-size: 20px;
+        }
+
+        .btn-numpad-confirm {
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-numpad-confirm:active {
+            background: #2563eb;
+        }
+
+        /* News */
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .news-item {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .news-item.company { border-left-color: #3b82f6; }
+        .news-item.sector { border-left-color: #8b5cf6; }
+        .news-item.market { border-left-color: #f59e0b; }
+
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .news-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .news-description {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .news-impact {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .impact-positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .impact-negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        /* Portfolio */
+        .portfolio-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .portfolio-item {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .portfolio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .portfolio-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .portfolio-ticker {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .portfolio-stat {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .portfolio-label {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .portfolio-value {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Account */
+        .account-section {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: #2563eb;
+            transform: scale(0.98);
+        }
+
+        /* Confirm Modal */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .confirm-modal.active {
+            display: flex;
+        }
+
+        .confirm-content {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 350px;
+            width: 100%;
+            animation: scaleIn 0.2s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .confirm-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .confirm-message {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .confirm-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-confirm {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #334155;
+            color: white;
+        }
+
+        .btn-ok {
+            background: #3b82f6;
+            color: white;
+        }
+
+        /* GNB */
+        .gnb {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1e293b;
+            border-top: 1px solid #334155;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .gnb-item {
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            color: #94a3b8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .gnb-item:active {
+            background: #334155;
+        }
+
+        .gnb-item.active {
+            color: #3b82f6;
+        }
+
+        .gnb-icon {
+            font-size: 20px;
+        }
+
+        .gnb-label {
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-50%) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            color: #94a3b8;
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -779,807 +922,933 @@
         </div>
     </div>
 
-```
-<!-- Container -->
-<div class="container">
-    <!-- Dashboard -->
-    <div class="dashboard">
-        <div class="stat-card">
-            <div class="stat-label">Day</div>
-            <div class="stat-value" id="dayDisplay">1</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">총 자산</div>
-            <div class="stat-value" id="totalAssets">1,000,000 ₩</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">현금</div>
-            <div class="stat-value" id="cashDisplay">1,000,000 ₩</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">예수금</div>
-            <div class="stat-value" id="brokerageDisplay">0 ₩</div>
-        </div>
-        <div class="stat-card" style="grid-column: 1 / -1;">
-            <div class="stat-label">시장 상태</div>
-            <div class="stat-value" id="marketStatus">
-                <span class="status-badge" id="statusBadge">개장 전</span>
-                <span id="marketMood" style="margin-left: 10px; font-size: 16px;">중립 ⚪</span>
+    <!-- Container -->
+    <div class="container">
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-label">Day</div>
+                <div class="stat-value" id="dayDisplay">1</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">총 자산</div>
+                <div class="stat-value" id="totalAssets">1,000,000 ₩</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">현금</div>
+                <div class="stat-value" id="cashDisplay">1,000,000 ₩</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">예수금</div>
+                <div class="stat-value" id="brokerageDisplay">0 ₩</div>
+            </div>
+            <div class="stat-card" style="grid-column: 1 / -1;">
+                <div class="stat-label">시장 상태</div>
+                <div class="stat-value" id="marketStatus">
+                    <span class="status-badge" id="statusBadge">개장 전</span>
+                    <span id="marketMood" style="margin-left: 10px; font-size: 16px;">중립 ⚪</span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Content Panels -->
-    <div id="stocksPanel" class="content-panel active">
-        <div class="filters" id="filterButtons"></div>
-        <div id="stockList" class="stock-list"></div>
-    </div>
-
-    <div id="portfolioPanel" class="content-panel">
-        <div id="portfolioList" class="portfolio-list"></div>
-    </div>
-
-    <div id="newsPanel" class="content-panel">
-        <div id="newsList" class="news-list"></div>
-    </div>
-
-    <div id="investPanel" class="content-panel">
-        <div class="empty-state">
-            🏗️ 부동산, 차량, 사치품 등<br>추가 투자 상품 준비 중
+        <!-- Content Panels -->
+        <div id="stocksPanel" class="content-panel active">
+            <div class="filters" id="filterButtons"></div>
+            <div id="stockList" class="stock-list"></div>
         </div>
-    </div>
 
-    <div id="accountPanel" class="content-panel">
-        <div class="account-section">
-            <div class="section-title">💰 계좌 이체</div>
-            <div class="input-group">
-                <label>이체 금액</label>
-                <input type="number" id="transferAmount" placeholder="금액 입력">
-            </div>
-            <button class="btn-full btn-primary" onclick="showTransferConfirm('toBrokerage')">
-                현금 → 예수금
-            </button>
-            <button class="btn-full btn-primary" onclick="showTransferConfirm('toCash')">
-                예수금 → 현금
-            </button>
+        <div id="portfolioPanel" class="content-panel">
+            <div id="portfolioList" class="portfolio-list"></div>
         </div>
-    </div>
-</div>
 
-<!-- Stock Detail Modal -->
-<div id="stockModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div>
-                <h2 id="modalStockName" style="font-size: 20px; margin-bottom: 4px;"></h2>
-                <div id="modalStockTicker" style="color: #94a3b8; font-size: 12px;"></div>
-            </div>
-            <button class="modal-close" onclick="closeModal()">×</button>
+        <div id="newsPanel" class="content-panel">
+            <div id="newsList" class="news-list"></div>
         </div>
-        <div class="modal-body">
-            <div class="stock-detail-header">
-                <div class="detail-price" id="modalStockPrice"></div>
-                <div id="modalStockChange"></div>
+
+        <div id="investPanel" class="content-panel">
+            <div class="empty-state">
+                🏗️ 부동산, 차량, 사치품 등<br>추가 투자 상품 준비 중
             </div>
+        </div>
 
-            <div class="mini-chart" id="miniChart"></div>
-
-            <div class="holding-info" id="holdingInfo" style="display: none;"></div>
-
-            <div id="tradeDisabledMessage" class="disabled-message" style="display: none;">
-                ⏰ 거래소가 폐장되어 주식 거래가 불가능합니다
-            </div>
-
-            <div class="trade-section" id="tradeSection">
+        <div id="accountPanel" class="content-panel">
+            <div class="account-section">
+                <div class="section-title">💰 계좌 이체</div>
                 <div class="input-group">
-                    <label>수량</label>
-                    <input type="number" id="tradeQty" placeholder="거래할 수량 입력" min="1">
+                    <label>이체 금액</label>
+                    <input type="number" id="transferAmount" placeholder="금액 입력">
                 </div>
-                <div class="trade-buttons">
-                    <button class="btn-trade btn-buy" onclick="executeTrade('buy')">매수</button>
-                    <button class="btn-trade btn-sell" onclick="executeTrade('sell')">매도</button>
-                </div>
+                <button class="btn-full btn-primary" onclick="showTransferConfirm('toBrokerage')">
+                    현금 → 예수금
+                </button>
+                <button class="btn-full btn-primary" onclick="showTransferConfirm('toCash')">
+                    예수금 → 현금
+                </button>
             </div>
-
-            <h3 style="margin: 20px 0 10px; font-size: 16px;">관련 뉴스</h3>
-            <div id="modalNewsList" class="news-list"></div>
         </div>
     </div>
-</div>
 
-<!-- Confirm Modal -->
-<div id="confirmModal" class="confirm-modal">
-    <div class="confirm-content">
-        <div class="confirm-title" id="confirmTitle"></div>
-        <div class="confirm-message" id="confirmMessage"></div>
-        <div class="confirm-buttons">
-            <button class="btn-confirm btn-cancel" onclick="closeConfirm()">취소</button>
-            <button class="btn-confirm btn-ok" onclick="confirmAction()">확인</button>
-        </div>
-    </div>
-</div>
+    <!-- Stock Detail Modal -->
+    <div id="stockModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalStockName" style="font-size: 20px; margin-bottom: 4px;"></h2>
+                    <div id="modalStockTicker" style="color: #94a3b8; font-size: 12px;"></div>
+                </div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="stock-detail-header">
+                    <div class="detail-price" id="modalStockPrice"></div>
+                    <div id="modalStockChange"></div>
+                </div>
 
-<!-- GNB -->
-<div class="gnb">
-    <button class="gnb-item active" onclick="switchTab('stocks')">
-        <div class="gnb-icon">📊</div>
-        <div class="gnb-label">거래소</div>
-    </button>
-    <button class="gnb-item" onclick="switchTab('portfolio')">
-        <div class="gnb-icon">💼</div>
-        <div class="gnb-label">포트폴리오</div>
-    </button>
-    <button class="gnb-item" onclick="switchTab('news')">
-        <div class="gnb-icon">📰</div>
-        <div class="gnb-label">뉴스</div>
-    </button>
-    <button class="gnb-item" onclick="switchTab('invest')">
-        <div class="gnb-icon">🏠</div>
-        <div class="gnb-label">투자</div>
-    </button>
-    <button class="gnb-item" onclick="switchTab('account')">
-        <div class="gnb-icon">💳</div>
-        <div class="gnb-label">내 계좌</div>
-    </button>
-</div>
+                <div class="mini-chart" id="miniChart"></div>
 
-<script>
-    /* ============================================
-       script.js - 게임 로직
-       ============================================ */
+                <div class="holding-info" id="holdingInfo" style="display: none;"></div>
 
-    // Game State
-    const gameState = {
-        day: 1,
-        timeMinutes: 480, // 08:00 = 480분
-        cash: 1000000,
-        brokerageCash: 0,
-        portfolio: [],
-        market: {
-            companies: [],
-            prices: {},
-            priceHistory: {},
-            marketMood: 0
-        },
-        news: [],
-        selectedSector: '전체',
-        isPaused: false,
-        isClosed: false
-    };
+                <div id="tradeDisabledMessage" class="disabled-message" style="display: none;">
+                    ⏰ 거래소가 폐장되어 주식 거래가 불가능합니다
+                </div>
 
-    let gameTimer = null;
-    let currentStockId = null;
-    let confirmCallback = null;
-
-    // Company Data
-    const companyData = [{"id":1,"exchange":"COSPI","name":"바나나","ticker":"BANN","sector":"테크/IT","description":"컴퓨터 전자기기 개발, 스마트폰 개발","marketCap":499999750000000,"initialPrice":85000,"sharesOutstanding":5882350000,"dividendYieldAnnual":0.012,"sizeClass":"large","baseVolatilityPerTick":0.0066},{"id":2,"exchange":"COSPI","name":"샘 솔루션","ticker":"SSOL","sector":"테크/IT","description":"컴퓨터 전자기기 개발, 스마트폰 개발","marketCap":419999760000000,"initialPrice":72000,"sharesOutstanding":5833330000,"dividendYieldAnnual":0.015,"sizeClass":"large","baseVolatilityPerTick":0.0066},{"id":3,"exchange":"COSPI","name":"소미텍","ticker":"SOMI","sector":"테크/IT","description":"컴퓨터 전자기기 개발, 스마트폰 개발","marketCap":150000000000000,"initialPrice":125000,"sharesOutstanding":1200000000,"dividendYieldAnnual":0.005,"sizeClass":"large","baseVolatilityPerTick":0.0066},{"id":4,"exchange":"COSPI","name":"서니","ticker":"SUNY","sector":"테크/IT","description":"컴퓨터 전자기기 개발, 스마트폰 개발","marketCap":79999650000000,"initialPrice":45000,"sharesOutstanding":1777770000,"dividendYieldAnnual":0.008,"sizeClass":"mid","baseVolatilityPerTick":0.0132},{"id":5,"exchange":"COSPI","name":"흐웨이","ticker":"HWEI","sector":"테크/IT","description":"컴퓨터 전자기기 개발, 스마트폰 개발","marketCap":60000000000000,"initialPrice":32000,"sharesOutstanding":1875000000,"dividendYieldAnnual":0,"sizeClass":"mid","baseVolatilityPerTick":0.0132},{"id":6,"exchange":"COSPI","name":"Cloz AI","ticker":"CLZA","sector":"테크/IT","description":"AI 개발","marketCap":24999000000000,"initialPrice":150000,"sharesOutstanding":166660000,"dividendYieldAnnual":0,"sizeClass":"small","baseVolatilityPerTick":0.0242},{"id":7,"exchange":"COSPI","name":"루트 테크놀로지","ticker":"RRTN","sector":"테크/IT","description":"AI 개발","marketCap":17999720000000,"initialPrice":58000,"sharesOutstanding":310340000,"dividendYieldAnnual":0,"sizeClass":"micro","baseVolatilityPerTick":0.0385},{"id":8,"exchange":"COSPI","name":"ZPT","ticker":"ZPTT","sector":"테크/IT","description":"AI 개발","marketCap":29998500000000,"initialPrice":210000,"sharesOutstanding":142850000,"dividendYieldAnnual":0,"sizeClass":"small","baseVolatilityPerTick":0.0242},{"id":9,"exchange":"COSPI","name":"모르모트제약","ticker":"MRMT","sector":"바이오/제약","description":"신약 개발","marketCap":45000000000000,"initialPrice":120000,"sharesOutstanding":375000000,"dividendYieldAnnual":0.005,"sizeClass":"small","baseVolatilityPerTick":0.0352},{"id":10,"exchange":"COSPI","name":"무한제약","ticker":"MUHN","sector":"바이오/제약","description":"신약 개발","marketCap":31999440000000,"initialPrice":88000,"sharesOutstanding":363630000,"dividendYieldAnnual":0,"sizeClass":"small","baseVolatilityPerTick":0.0352},{"id":11,"exchange":"COSPI","name":"HBM 바이오","ticker":"HBMB","sector":"바이오/제약","description":"신약 개발","marketCap":14999850000000,"initialPrice":45000,"sharesOutstanding":333330000,"dividendYieldAnnual":0,"sizeClass":"micro","baseVolatilityPerTick":0.056},{"id":12,"exchange":"COSPI","name":"롱헤어연구소","ticker":"LHRL","sector":"바이오/제약","description":"신약 개발","marketCap":7999860000000,"initialPrice":23000,"sharesOutstanding":347820000,"dividendYieldAnnual":0,"sizeClass":"micro","baseVolatilityPerTick":0.056},{"id":13,"exchange":"COSPI","name":"안주거제약","ticker":"AZGB","sector":"바이오/제약","description":"신약 개발","marketCap":21999900000000,"initialPrice":65000,"sharesOutstanding":338460000,"dividendYieldAnnual":0.01,"sizeClass":"micro","baseVolatilityPerTick":0.056},{"id":14,"exchange":"COSPI","name":"한대자동차","ticker":"HAND","sector":"자동차/에너지","description":"자동차 제조","marketCap":349999000000000,"initialPrice":190000,"sharesOutstanding":1842100000,"dividendYieldAnnual":0.045,"sizeClass":"large","baseVolatilityPerTick":0.006},{"id":15,"exchange":"COSPI","name":"기어자동차","ticker":"GEAR","sector":"자동차/에너지","description":"자동차 제조","marketCap":279999350000000,"initialPrice":85000,"sharesOutstanding":3294110000,"dividendYieldAnnual":0.04,"sizeClass":"large","baseVolatilityPerTick":0.006},{"id":16,"exchange":"COSPI","name":"한국자동차","ticker":"HGCA","sector":"자동차/에너지","description":"자동차 제조","marketCap":120000000000000,"initialPrice":12000,"sharesOutstanding":10000000000,"dividendYieldAnnual":0.025,"sizeClass":"large","baseVolatilityPerTick":0.006},{"id":17,"exchange":"COSPI","name":"인도오일","ticker":"INDO","sector":"자동차/에너지","description":"석유 화학 정유","marketCap":89999360000000,"initialPrice":68000,"sharesOutstanding":1323520000,"dividendYieldAnnual":0.06,"sizeClass":"mid","baseVolatilityPerTick":0.012},{"id":18,"exchange":"COSPI","name":"만슬라오일","ticker":"MSLO","sector":"자동차/에너지","description":"석유 화학 정유","marketCap":74999100000000,"initialPrice":110000,"sharesOutstanding":681810000,"dividendYieldAnnual":0.055,"sizeClass":"mid","baseVolatilityPerTick":0.012},{"id":19,"exchange":"COSPI","name":"호르몬플라스틱","ticker":"HMPL","sector":"자동차/에너지","description":"석유 화학 정유","marketCap":60000000000000,"initialPrice":150000,"sharesOutstanding":400000000,"dividendYieldAnnual":0.03,"sizeClass":"mid","baseVolatilityPerTick":0.012},{"id":20,"exchange":"COSPI","name":"두대중공업","ticker":"DDHV","sector":"자동차/에너지","description":"중공업","marketCap":139999860000000,"initialPrice":18000,"sharesOutstanding":7777770000,"dividendYieldAnnual":0.02,"sizeClass":"large","baseVolatilityPerTick":0.006},{"id":21,"exchange":"COSPI","name":"무력중공업","ticker":"MRHV","sector":"자동차/에너지","description":"중공업","marketCap":49999840000000,"initialPrice":22000,"sharesOutstanding":2272720000,"dividendYieldAnnual":0.015,"sizeClass":"small","baseVolatilityPerTick":0.022},{"id":22,"exchange":"COSPI","name":"애플릭스","ticker":"APLX","sector":"엔터테인먼트","description":"OTT, 콘텐츠 제작사","marketCap":179999400000000,"initialPrice":420000,"sharesOutstanding":428570000,"dividendYieldAnnual":0,"sizeClass":"large","baseVolatilityPerTick":0.0084},{"id":23,"exchange":"COSPI","name":"티브잉","ticker":"TVNG","sector":"엔터테인먼트","description":"OTT, 콘텐츠 제작사","marketCap":39999300000000,"initialPrice":85000,"sharesOutstanding":470580000,"dividendYieldAnnual":0,"sizeClass":"small","baseVolatilityPerTick":0.0308},{"id":24,"exchange":"COSPI","name":"사과TV","ticker":"APTV","sector":"엔터테인먼트","description":"OTT, 콘텐츠 제작사","marketCap":95000000000000,"initialPrice":125000,"sharesOutstanding":760000000,"dividendYieldAnnual":0.005,"sizeClass":"mid","baseVolatilityPerTick":0.0168},{"id":25,"exchange":"COSPI","name":"PJY엔터테인먼트","ticker":"PJYE","sector":"엔터테인먼트","description":"연예기획사","marketCap":24999520000000,"initialPrice":68000,"sharesOutstanding":367640000,"dividendYieldAnnual":0.01,"sizeClass":"small","baseVolatilityPerTick":0.0308},{"id":26,"exchange":"COSPI","name":"MS엔터테인먼트","ticker":"MSET","sector":"엔터테인먼트","description":"연예기획사","marketCap":30000000000000,"initialPrice":150000,"sharesOutstanding":200000000,"dividendYieldAnnual":0.008,"sizeClass":"small","baseVolatilityPerTick":0.0308},{"id":27,"exchange":"COSPI","name":"하이파이브","ticker":"HIFI","sector":"엔터테인먼트","description":"연예기획사","marketCap":80000000000000,"initialPrice":250000,"sharesOutstanding":320000000,"dividendYieldAnnual":0.002,"sizeClass":"mid","baseVolatilityPerTick":0.0168},{"id":28,"exchange":"COSPI","name":"22세기 영화사","ticker":"EEMV","sector":"엔터테인먼트","description":"영화제작사","marketCap":12000000000000,"initialPrice":8000,"sharesOutstanding":1500000000,"dividendYieldAnnual":0.015,"sizeClass":"micro","baseVolatilityPerTick":0.049},{"id":29,"exchange":"COSPI","name":"브라더스","ticker":"BRTS","sector":"엔터테인먼트","description":"영화제작사","marketCap":9999990000000,"initialPrice":5500,"sharesOutstanding":1818180000,"dividendYieldAnnual":0.02,"sizeClass":"micro","baseVolatilityPerTick":0.049},{"id":30,"exchange":"COSPI","name":"캘리포니아무비","ticker":"CLMV","sector":"엔터테인먼트","description":"영화제작사","marketCap":19999920000000,"initialPrice":12000,"sharesOutstanding":1666660000,"dividendYieldAnnual":0,"sizeClass":"micro","baseVolatilityPerTick":0.049},{"id":31,"exchange":"COSPI","name":"마마존","ticker":"MMZN","sector":"생활/식품","description":"대형 프랜차이즈 마트","marketCap":219999600000000,"initialPrice":180000,"sharesOutstanding":1222220000,"dividendYieldAnnual":0.018,"sizeClass":"large","baseVolatilityPerTick":0.0048},{"id":32,"exchange":"COSPI","name":"코스트카","ticker":"CSTK","sector":"생활/식품","description":"대형 프랜차이즈 마트","marketCap":179998000000000,"initialPrice":350000,"sharesOutstanding":514280000,"dividendYieldAnnual":0.015,"sizeClass":"large","baseVolatilityPerTick":0.0048},{"id":33,"exchange":"COSPI","name":"위마트","ticker":"WEMA","sector":"생활/식품","description":"대형 프랜차이즈 마트","marketCap":49999950000000,"initialPrice":45000,"sharesOutstanding":1111110000,"dividendYieldAnnual":0.025,"sizeClass":"small","baseVolatilityPerTick":0.0176},{"id":34,"exchange":"COSPI","name":"곰팡","ticker":"GOMP","sector":"생활/식품","description":"인터넷 쇼핑몰","marketCap":64999760000000,"initialPrice":28000,"sharesOutstanding":2321420000,"dividendYieldAnnual":0,"sizeClass":"mid","baseVolatilityPerTick":0.0096},{"id":35,"exchange":"COSPI","name":"쓰윽쇼핑","ticker":"SSUK","sector":"생활/식품","description":"인터넷 쇼핑몰","marketCap":54999000000000,"initialPrice":150000,"sharesOutstanding":366660000,"dividendYieldAnnual":0.01,"sizeClass":"small","baseVolatilityPerTick":0.0176},{"id":36,"exchange":"COSPI","name":"소년나라","ticker":"SNNA","sector":"생활/식품","description":"의류 쇼핑몰","marketCap":4999995000000,"initialPrice":3500,"sharesOutstanding":1428570000,"dividendYieldAnnual":0,"sizeClass":"micro","baseVolatilityPerTick":0.028},{"id":37,"exchange":"COSPI","name":"유신사","ticker":"YUSS","sector":"생활/식품","description":"의류 쇼핑몰","marketCap":30000000000000,"initialPrice":120000,"sharesOutstanding":250000000,"dividendYieldAnnual":0.005,"sizeClass":"small","baseVolatilityPerTick":0.0176},{"id":38,"exchange":"COSPI","name":"블루라이너","ticker":"BLLN","sector":"교통/항공","description":"대형 항공사","marketCap":109999960000000,"initialPrice":28000,"sharesOutstanding":3928570000,"dividendYieldAnnual":0.02,"sizeClass":"large","baseVolatilityPerTick":0.0072},{"id":39,"exchange":"COSPI","name":"와이라노항공","ticker":"WRAR","sector":"교통/항공","description":"대형 항공사","marketCap":94999960000000,"initialPrice":22000,"sharesOutstanding":4318180000,"dividendYieldAnnual":0.015,"sizeClass":"mid","baseVolatilityPerTick":0.0144},{"id":40,"exchange":"COSPI","name":"노라타항공","ticker":"NORA","sector":"교통/항공","description":"저가 항공사","marketCap":15000000000000,"initialPrice":12000,"sharesOutstanding":1250000000,"dividendYieldAnnual":0,"sizeClass":"micro","baseVolatilityPerTick":0.042},{"id":41,"exchange":"COSPI","name":"ZWAY","ticker":"ZWAY","sector":"교통/항공","description":"저가 항공사","marketCap":11999925000000,"initialPrice":9500,"sharesOutstanding":1263150000,"dividendYieldAnnual":0,"sizeClass":"micro","baseVolatilityPerTick":0.042},{"id":42,"exchange":"COSPI","name":"청바지에어","ticker":"JEAN","sector":"교통/항공","description":"저가 항공사","marketCap":19999980000000,"initialPrice":18000,"sharesOutstanding":1111110000,"dividendYieldAnnual":0,"sizeClass":"micro","baseVolatilityPerTick":0.042},{"id":43,"exchange":"COSPI","name":"광속고속철도","ticker":"GSRW","sector":"교통/항공","description":"고속철도 건설, 운영","marketCap":79999650000000,"initialPrice":45000,"sharesOutstanding":1777770000,"dividendYieldAnnual":0.035,"sizeClass":"mid","baseVolatilityPerTick":0.0144},{"id":44,"exchange":"COSPI","name":"서브웨이어","ticker":"SBWR","sector":"교통/항공","description":"지하철 건설, 운영","marketCap":60000000000000,"initialPrice":5000,"sharesOutstanding":12000000000,"dividendYieldAnnual":0.04,"sizeClass":"mid","baseVolatilityPerTick":0.0144}];
-
-    // News Templates
-    const newsTemplates = {
-        company: [
-            { title: "신제품 출시 발표", impact: 0.03, duration: 15 },
-            { title: "분기 실적 호조", impact: 0.025, duration: 10 },
-            { title: "CEO 교체 발표", impact: -0.02, duration: 10 },
-            { title: "대규모 투자 유치", impact: 0.04, duration: 15 },
-            { title: "영업이익 감소", impact: -0.03, duration: 10 },
-            { title: "신규 사업 진출", impact: 0.02, duration: 15 },
-            { title: "리콜 사태 발생", impact: -0.05, duration: 20 }
-        ],
-        sector: [
-            { title: "업종 전망 상향", impact: 0.02, duration: 15 },
-            { title: "규제 강화 예정", impact: -0.025, duration: 20 },
-            { title: "업계 호황 지속", impact: 0.015, duration: 10 },
-            { title: "경쟁 심화", impact: -0.015, duration: 15 }
-        ],
-        market: [
-            { title: "금리 인하 단행", impact: 0.03, duration: 25 },
-            { title: "경기 침체 우려", impact: -0.04, duration: 25 },
-            { title: "외국인 매수세 증가", impact: 0.02, duration: 15 },
-            { title: "글로벌 불확실성 확대", impact: -0.025, duration: 20 }
-        ]
-    };
-
-    // Initialize
-    function init() {
-        gameState.market.companies = companyData.map(c => ({
-            ...c,
-            newsTimes: []
-        }));
-        
-        gameState.market.companies.forEach(company => {
-            gameState.market.prices[company.id] = company.initialPrice;
-            gameState.market.priceHistory[company.id] = [company.initialPrice];
-        });
-
-        renderFilters();
-        renderStockList();
-        updateDisplay();
-        startGameTimer();
-    }
-
-    // Game Timer
-    function startGameTimer() {
-        if (gameTimer) clearInterval(gameTimer);
-        
-        gameTimer = setInterval(() => {
-            if (!gameState.isPaused && !gameState.isClosed) {
-                gameTick();
-            }
-        }, 2000); // 2초마다 5분 증가
-    }
-
-    function gameTick() {
-        gameState.timeMinutes += 5;
-
-        // Check market open/close
-        if (gameState.timeMinutes === 540) { // 09:00
-            gameState.isClosed = false;
-            showToast('🔔 거래소 개장!');
-        }
-
-        if (gameState.timeMinutes > 930) { // 15:30 초과
-            gameState.isClosed = true;
-            gameState.timeMinutes = 930; // 15:30에서 고정
-            document.getElementById('nextDayBtn').style.display = 'block';
-            document.getElementById('pauseBtn').style.display = 'none';
-            showToast('🔔 거래소 폐장');
-            return;
-        }
-
-        // During market hours: update prices and generate news
-        if (gameState.timeMinutes >= 540 && gameState.timeMinutes <= 930) {
-            // Generate News (15% chance per tick)
-            if (Math.random() < 0.15) {
-                generateNews();
-            }
-
-            // Update Market Mood
-            gameState.market.marketMood += (Math.random() - 0.5) * 0.01;
-            gameState.market.marketMood = Math.max(-0.05, Math.min(0.05, gameState.market.marketMood));
-
-            // Update Prices
-            gameState.market.companies.forEach(company => {
-                updatePrice(company);
-            });
-        }
-
-        updateDisplay();
-        if (document.getElementById('stocksPanel').classList.contains('active')) {
-            renderStockList();
-        }
-    }
-
-    function togglePause() {
-        gameState.isPaused = !gameState.isPaused;
-        document.getElementById('pauseBtn').textContent = gameState.isPaused ? '▶️' : '⏸️';
-        showToast(gameState.isPaused ? '⏸️ 일시정지' : '▶️ 재생');
-    }
-
-    function nextDay() {
-        gameState.day++;
-        gameState.timeMinutes = 480; // 08:00
-        gameState.isClosed = false;
-        document.getElementById('nextDayBtn').style.display = 'none';
-        document.getElementById('pauseBtn').style.display = 'block';
-        updateDisplay();
-        showToast(`📅 Day ${gameState.day} 시작`);
-    }
-
-    // Update Display
-    function updateDisplay() {
-        const hours = Math.floor(gameState.timeMinutes / 60);
-        const minutes = gameState.timeMinutes % 60;
-        const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-        
-        document.getElementById('timeDisplay').textContent = gameState.isClosed ? '거래소 폐장' : timeStr;
-        document.getElementById('dayDisplay').textContent = gameState.day;
-        document.getElementById('cashDisplay').textContent = formatMoney(gameState.cash);
-        document.getElementById('brokerageDisplay').textContent = formatMoney(gameState.brokerageCash);
-        
-        const stockValue = calculateStockValue();
-        const totalAssets = gameState.cash + gameState.brokerageCash + stockValue;
-        document.getElementById('totalAssets').textContent = formatMoney(totalAssets);
-        
-        // Market Status
-        const badge = document.getElementById('statusBadge');
-        const isOpen = gameState.timeMinutes >= 540 && gameState.timeMinutes <= 930;
-        
-        if (gameState.isClosed) {
-            badge.textContent = '폐장';
-            badge.className = 'status-badge';
-        } else if (isOpen) {
-            badge.textContent = '개장';
-            badge.className = 'status-badge open';
-        } else {
-            badge.textContent = '개장 전';
-            badge.className = 'status-badge';
-        }
-        
-        const moodText = gameState.market.marketMood > 0.01 ? '낙관적 🟢' :
-                       gameState.market.marketMood < -0.01 ? '비관적 🔴' : '중립 ⚪';
-        document.getElementById('marketMood').textContent = moodText;
-    }
-
-    // Calculate Stock Value
-    function calculateStockValue() {
-        return gameState.portfolio.reduce((sum, holding) => {
-            const currentPrice = gameState.market.prices[holding.companyId];
-            return sum + (currentPrice * holding.qty);
-        }, 0);
-    }
-
-    // Format Money
-    function formatMoney(amount) {
-        return new Intl.NumberFormat('ko-KR').format(Math.floor(amount)) + ' ₩';
-    }
-
-    // Render Filters
-    function renderFilters() {
-        const sectors = ['전체', ...new Set(companyData.map(c => c.sector))];
-        document.getElementById('filterButtons').innerHTML = sectors.map(sector => 
-            `<button class="filter-btn ${sector === '전체' ? 'active' : ''}" onclick="filterSector('${sector}')">${sector}</button>`
-        ).join('');
-    }
-
-    // Filter Sector
-    function filterSector(sector) {
-        gameState.selectedSector = sector;
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.textContent === sector);
-        });
-        renderStockList();
-    }
-
-    // Render Stock List
-    function renderStockList() {
-        const container = document.getElementById('stockList');
-        const filtered = gameState.selectedSector === '전체' ? 
-            gameState.market.companies : 
-            gameState.market.companies.filter(c => c.sector === gameState.selectedSector);
-        
-        container.innerHTML = filtered.map(company => {
-            const price = gameState.market.prices[company.id];
-            const history = gameState.market.priceHistory[company.id];
-            const change = history.length > 1 ? 
-                ((price - history[history.length - 2]) / history[history.length - 2] * 100) : 0;
-            
-            const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-            const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
-            
-            return `
-                <div class="stock-item" onclick="openStockDetail(${company.id})">
-                    <div class="stock-info">
-                        <div class="stock-name">${company.name}</div>
-                        <div class="stock-ticker">${company.ticker} · ${company.sector}</div>
+                <div class="trade-section" id="tradeSection">
+                    <div class="trade-info-row">
+                        <span class="trade-info-label">예수금 잔고</span>
+                        <span class="trade-info-value" id="tradeBalance">0 ₩</span>
                     </div>
-                    <div class="stock-price">
-                        <div class="price">${formatMoney(price)}</div>
-                        <div class="change ${changeClass}">${changeSymbol} ${Math.abs(change).toFixed(2)}%</div>
+                    <div class="trade-info-row">
+                        <span class="trade-info-label">최대 구매 가능</span>
+                        <span class="trade-info-value" id="maxBuyQty">0주</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>거래 수량</label>
+                        <div class="input-display empty" id="qtyDisplay" onclick="showNumpad()">수량 입력</div>
+                    </div>
+
+                    <div class="trade-estimate" id="tradeEstimate" style="display: none;">
+                        <div class="estimate-row">
+                            <span>거래 금액</span>
+                            <span id="estimateAmount">-</span>
+                        </div>
+                        <div class="estimate-row">
+                            <span>수수료</span>
+                            <span id="estimateFee">-</span>
+                        </div>
+                        <div class="estimate-row">
+                            <span>총 필요 금액 (매수)</span>
+                            <span id="estimateTotal">-</span>
+                        </div>
+                    </div>
+
+                    <div class="trade-buttons">
+                        <button class="btn-trade btn-buy" onclick="executeTrade('buy')">매수</button>
+                        <button class="btn-trade btn-sell" onclick="executeTrade('sell')">매도</button>
                     </div>
                 </div>
-            `;
-        }).join('');
-    }
 
-    // Update Price
-    function updatePrice(company) {
-        const currentPrice = gameState.market.prices[company.id];
-        
-        const decay = 180;
-        let issueIndex = 0;
-        company.newsTimes.forEach(newsTick => {
-            const age = gameState.timeMinutes - newsTick;
-            const weight = Math.exp(-age / decay);
-            issueIndex += weight;
-        });
-        issueIndex = Math.min(issueIndex / 5, 1);
+                <h3 style="margin: 20px 0 10px; font-size: 16px;">관련 뉴스</h3>
+                <div id="modalNewsList" class="news-list"></div>
+            </div>
+        </div>
+    </div>
 
-        const randomChange = (Math.random() - 0.5) * company.baseVolatilityPerTick * 2;
-        const moodEffect = gameState.market.marketMood;
-        
-        let newsEffect = 0;
-        const activeNews = gameState.news.filter(n => {
-            if (n.scope === 'company' && n.targetId === company.id) return true;
-            if (n.scope === 'sector' && n.targetId === company.sector) return true;
-            if (n.scope === 'market') return true;
-            return false;
-        });
+    <!-- Numpad Modal -->
+    <div id="numpadModal" class="numpad-modal">
+        <div class="numpad-content">
+            <div class="numpad-header">
+                <div class="numpad-title">수량 입력</div>
+                <button class="modal-close" onclick="closeNumpad()">×</button>
+            </div>
+            <div class="numpad-display empty" id="numpadDisplay">0</div>
+            <div class="numpad-grid">
+                <button class="numpad-btn" onclick="addDigit('1')">1</button>
+                <button class="numpad-btn" onclick="addDigit('2')">2</button>
+                <button class="numpad-btn" onclick="addDigit('3')">3</button>
+                <button class="numpad-btn" onclick="addDigit('4')">4</button>
+                <button class="numpad-btn" onclick="addDigit('5')">5</button>
+                <button class="numpad-btn" onclick="addDigit('6')">6</button>
+                <button class="numpad-btn" onclick="addDigit('7')">7</button>
+                <button class="numpad-btn" onclick="addDigit('8')">8</button>
+                <button class="numpad-btn" onclick="addDigit('9')">9</button>
+                <button class="numpad-btn zero" onclick="addDigit('0')">0</button>
+                <button class="numpad-btn backspace" onclick="backspace()">←</button>
+            </div>
+            <button class="btn-numpad-confirm" onclick="confirmNumpad()">확인</button>
+        </div>
+    </div>
 
-        activeNews.forEach(news => {
-            if (news.timestampMinutes === gameState.timeMinutes) {
-                newsEffect += news.impactNow;
-            }
-            
-            const ticksSinceNews = (gameState.timeMinutes - news.timestampMinutes) / 5;
-            if (ticksSinceNews > 0 && ticksSinceNews <= news.impactDuration) {
-                newsEffect += news.impactPerTick;
-            }
-        });
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="confirm-modal">
+        <div class="confirm-content">
+            <div class="confirm-title" id="confirmTitle"></div>
+            <div class="confirm-message" id="confirmMessage"></div>
+            <div class="confirm-buttons">
+                <button class="btn-confirm btn-cancel" onclick="closeConfirm()">취소</button>
+                <button class="btn-confirm btn-ok" onclick="confirmAction()">확인</button>
+            </div>
+        </div>
+    </div>
 
-        const effectiveVol = company.baseVolatilityPerTick * (1 + 0.7 * issueIndex);
-        const totalChange = randomChange + moodEffect + newsEffect;
-        const newPrice = currentPrice * (1 + totalChange);
-        
-        gameState.market.prices[company.id] = Math.max(100, Math.floor(newPrice));
-        gameState.market.priceHistory[company.id].push(gameState.market.prices[company.id]);
-        
-        if (gameState.market.priceHistory[company.id].length > 100) {
-            gameState.market.priceHistory[company.id].shift();
-        }
-    }
+    <!-- GNB -->
+    <div class="gnb">
+        <button class="gnb-item active" onclick="switchTab('stocks')">
+            <div class="gnb-icon">📊</div>
+            <div class="gnb-label">거래소</div>
+        </button>
+        <button class="gnb-item" onclick="switchTab('portfolio')">
+            <div class="gnb-icon">💼</div>
+            <div class="gnb-label">포트폴리오</div>
+        </button>
+        <button class="gnb-item" onclick="switchTab('news')">
+            <div class="gnb-icon">📰</div>
+            <div class="gnb-label">뉴스</div>
+        </button>
+        <button class="gnb-item" onclick="switchTab('invest')">
+            <div class="gnb-icon">🏠</div>
+            <div class="gnb-label">투자</div>
+        </button>
+        <button class="gnb-item" onclick="switchTab('account')">
+            <div class="gnb-icon">💳</div>
+            <div class="gnb-label">내 계좌</div>
+        </button>
+    </div>
 
-    // Generate News
-    function generateNews() {
-        const scopes = ['company', 'sector', 'market'];
-        const scope = scopes[Math.floor(Math.random() * scopes.length)];
-        
-        let targetId, targetName;
-        
-        if (scope === 'company') {
-            const company = gameState.market.companies[Math.floor(Math.random() * gameState.market.companies.length)];
-            targetId = company.id;
-            targetName = company.name;
-            company.newsTimes.push(gameState.timeMinutes);
-            if (company.newsTimes.length > 10) company.newsTimes.shift();
-        } else if (scope === 'sector') {
-            const sectors = [...new Set(gameState.market.companies.map(c => c.sector))];
-            targetId = sectors[Math.floor(Math.random() * sectors.length)];
-            targetName = targetId;
-        } else {
-            targetId = 'market';
-            targetName = '전체 시장';
-        }
-
-        const templates = newsTemplates[scope];
-        const template = templates[Math.floor(Math.random() * templates.length)];
-        
-        const news = {
-            id: gameState.news.length + 1,
-            timestampMinutes: gameState.timeMinutes,
-            day: gameState.day,
-            timeStr: formatTime(gameState.timeMinutes),
-            title: template.title,
-            description: `${targetName}에 대한 ${template.title.toLowerCase()} 소식`,
-            scope: scope,
-            targetId: targetId,
-            impactNow: template.impact,
-            impactDuration: template.duration,
-            impactPerTick: template.impact / template.duration * 0.3
+    <script>
+        // Game State
+        const gameState = {
+            day: 1,
+            timeMinutes: 480,
+            cash: 1000000,
+            brokerageCash: 0,
+            portfolio: [],
+            market: {
+                companies: [],
+                prices: {},
+                previousClosePrices: {},
+                priceHistory: {},
+                marketMood: 0
+            },
+            news: [],
+            selectedSector: '전체',
+            isPaused: false,
+            isClosed: false
         };
 
-        gameState.news.unshift(news);
-        if (gameState.news.length > 50) gameState.news.pop();
-    }
+        let gameTimer = null;
+        let currentStockId = null;
+        let confirmCallback = null;
+        let numpadValue = '';
 
-    function formatTime(minutes) {
-        const h = Math.floor(minutes / 60);
-        const m = minutes % 60;
-        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-    }
+        // Company Data (변동성 1/3로 감소)
+        const companyData = [{"id":1,"name":"바나나","ticker":"BANN","sector":"테크/IT","initialPrice":85000,"baseVolatilityPerTick":0.0022},{"id":2,"name":"샘 솔루션","ticker":"SSOL","sector":"테크/IT","initialPrice":72000,"baseVolatilityPerTick":0.0022},{"id":3,"name":"소미텍","ticker":"SOMI","sector":"테크/IT","initialPrice":125000,"baseVolatilityPerTick":0.0022},{"id":4,"name":"서니","ticker":"SUNY","sector":"테크/IT","initialPrice":45000,"baseVolatilityPerTick":0.0044},{"id":5,"name":"흐웨이","ticker":"HWEI","sector":"테크/IT","initialPrice":32000,"baseVolatilityPerTick":0.0044},{"id":6,"name":"Cloz AI","ticker":"CLZA","sector":"테크/IT","initialPrice":150000,"baseVolatilityPerTick":0.0081},{"id":7,"name":"루트 테크놀로지","ticker":"RRTN","sector":"테크/IT","initialPrice":58000,"baseVolatilityPerTick":0.0128},{"id":8,"name":"ZPT","ticker":"ZPTT","sector":"테크/IT","initialPrice":210000,"baseVolatilityPerTick":0.0081},{"id":9,"name":"모르모트제약","ticker":"MRMT","sector":"바이오/제약","initialPrice":120000,"baseVolatilityPerTick":0.0117},{"id":10,"name":"무한제약","ticker":"MUHN","sector":"바이오/제약","initialPrice":88000,"baseVolatilityPerTick":0.0117},{"id":11,"name":"HBM 바이오","ticker":"HBMB","sector":"바이오/제약","initialPrice":45000,"baseVolatilityPerTick":0.0187},{"id":12,"name":"롱헤어연구소","ticker":"LHRL","sector":"바이오/제약","initialPrice":23000,"baseVolatilityPerTick":0.0187},{"id":13,"name":"안주거제약","ticker":"AZGB","sector":"바이오/제약","initialPrice":65000,"baseVolatilityPerTick":0.0187},{"id":14,"name":"한대자동차","ticker":"HAND","sector":"자동차/에너지","initialPrice":190000,"baseVolatilityPerTick":0.002},{"id":15,"name":"기어자동차","ticker":"GEAR","sector":"자동차/에너지","initialPrice":85000,"baseVolatilityPerTick":0.002},{"id":16,"name":"한국자동차","ticker":"HGCA","sector":"자동차/에너지","initialPrice":12000,"baseVolatilityPerTick":0.002},{"id":17,"name":"인도오일","ticker":"INDO","sector":"자동차/에너지","initialPrice":68000,"baseVolatilityPerTick":0.004},{"id":18,"name":"만슬라오일","ticker":"MSLO","sector":"자동차/에너지","initialPrice":110000,"baseVolatilityPerTick":0.004},{"id":19,"name":"호르몬플라스틱","ticker":"HMPL","sector":"자동차/에너지","initialPrice":150000,"baseVolatilityPerTick":0.004},{"id":20,"name":"두대중공업","ticker":"DDHV","sector":"자동차/에너지","initialPrice":18000,"baseVolatilityPerTick":0.002},{"id":21,"name":"무력중공업","ticker":"MRHV","sector":"자동차/에너지","initialPrice":22000,"baseVolatilityPerTick":0.0073},{"id":22,"name":"애플릭스","ticker":"APLX","sector":"엔터테인먼트","initialPrice":420000,"baseVolatilityPerTick":0.0028},{"id":23,"name":"티브잉","ticker":"TVNG","sector":"엔터테인먼트","initialPrice":85000,"baseVolatilityPerTick":0.0103},{"id":24,"name":"사과TV","ticker":"APTV","sector":"엔터테인먼트","initialPrice":125000,"baseVolatilityPerTick":0.0056},{"id":25,"name":"PJY엔터테인먼트","ticker":"PJYE","sector":"엔터테인먼트","initialPrice":68000,"baseVolatilityPerTick":0.0103},{"id":26,"name":"MS엔터테인먼트","ticker":"MSET","sector":"엔터테인먼트","initialPrice":150000,"baseVolatilityPerTick":0.0103},{"id":27,"name":"하이파이브","ticker":"HIFI","sector":"엔터테인먼트","initialPrice":250000,"baseVolatilityPerTick":0.0056},{"id":28,"name":"22세기 영화사","ticker":"EEMV","sector":"엔터테인먼트","initialPrice":8000,"baseVolatilityPerTick":0.0163},{"id":29,"name":"브라더스","ticker":"BRTS","sector":"엔터테인먼트","initialPrice":5500,"baseVolatilityPerTick":0.0163},{"id":30,"name":"캘리포니아무비","ticker":"CLMV","sector":"엔터테인먼트","initialPrice":12000,"baseVolatilityPerTick":0.0163},{"id":31,"name":"마마존","ticker":"MMZN","sector":"생활/식품","initialPrice":180000,"baseVolatilityPerTick":0.0016},{"id":32,"name":"코스트카","ticker":"CSTK","sector":"생활/식품","initialPrice":350000,"baseVolatilityPerTick":0.0016},{"id":33,"name":"위마트","ticker":"WEMA","sector":"생활/식품","initialPrice":45000,"baseVolatilityPerTick":0.0059},{"id":34,"name":"곰팡","ticker":"GOMP","sector":"생활/식품","initialPrice":28000,"baseVolatilityPerTick":0.0032},{"id":35,"name":"쓰윽쇼핑","ticker":"SSUK","sector":"생활/식품","initialPrice":150000,"baseVolatilityPerTick":0.0059},{"id":36,"name":"소년나라","ticker":"SNNA","sector":"생활/식품","initialPrice":3500,"baseVolatilityPerTick":0.0093},{"id":37,"name":"유신사","ticker":"YUSS","sector":"생활/식품","initialPrice":120000,"baseVolatilityPerTick":0.0059},{"id":38,"name":"블루라이너","ticker":"BLLN","sector":"교통/항공","initialPrice":28000,"baseVolatilityPerTick":0.0024},{"id":39,"name":"와이라노항공","ticker":"WRAR","sector":"교통/항공","initialPrice":22000,"baseVolatilityPerTick":0.0048},{"id":40,"name":"노라타항공","ticker":"NORA","sector":"교통/항공","initialPrice":12000,"baseVolatilityPerTick":0.014},{"id":41,"name":"ZWAY","ticker":"ZWAY","sector":"교통/항공","initialPrice":9500,"baseVolatilityPerTick":0.014},{"id":42,"name":"청바지에어","ticker":"JEAN","sector":"교통/항공","initialPrice":18000,"baseVolatilityPerTick":0.014},{"id":43,"name":"광속고속철도","ticker":"GSRW","sector":"교통/항공","initialPrice":45000,"baseVolatilityPerTick":0.0048},{"id":44,"name":"서브웨이어","ticker":"SBWR","sector":"교통/항공","initialPrice":5000,"baseVolatilityPerTick":0.0048}];
 
-    // Open Stock Detail
-    function openStockDetail(companyId) {
-        currentStockId = companyId;
-        const company = gameState.market.companies.find(c => c.id === companyId);
-        const price = gameState.market.prices[companyId];
-        const history = gameState.market.priceHistory[companyId];
-        const change = history.length > 1 ? 
-            ((price - history[history.length - 2]) / history[history.length - 2] * 100) : 0;
-        
-        document.getElementById('modalStockName').textContent = company.name;
-        document.getElementById('modalStockTicker').textContent = `${company.ticker} · ${company.sector}`;
-        document.getElementById('modalStockPrice').textContent = formatMoney(price);
-        
-        const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-        const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
-        document.getElementById('modalStockChange').innerHTML = `<span class="${changeClass}">${changeSymbol} ${Math.abs(change).toFixed(2)}%</span>`;
-        
-        renderMiniChart(history);
-        
-        // Holding Info
-        const holding = gameState.portfolio.find(h => h.companyId === companyId);
-        if (holding) {
-            const pnl = (price - holding.avgCost) * holding.qty;
-            const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
-            const pnlClass = pnl >= 0 ? 'positive' : 'negative';
+        // News Templates (영향력 감소)
+        const newsTemplates = {
+            company: [
+                { title: "신제품 출시 발표", impact: 0.015, duration: 15 },
+                { title: "분기 실적 호조", impact: 0.012, duration: 10 },
+                { title: "CEO 교체 발표", impact: -0.01, duration: 10 },
+                { title: "대규모 투자 유치", impact: 0.02, duration: 15 },
+                { title: "영업이익 감소", impact: -0.015, duration: 10 },
+                { title: "신규 사업 진출", impact: 0.01, duration: 15 },
+                { title: "리콜 사태 발생", impact: -0.025, duration: 20 }
+            ],
+            sector: [
+                { title: "업종 전망 상향", impact: 0.01, duration: 15 },
+                { title: "규제 강화 예정", impact: -0.012, duration: 20 },
+                { title: "업계 호황 지속", impact: 0.008, duration: 10 },
+                { title: "경쟁 심화", impact: -0.008, duration: 15 }
+            ],
+            market: [
+                { title: "금리 인하 단행", impact: 0.015, duration: 25 },
+                { title: "경기 침체 우려", impact: -0.02, duration: 25 },
+                { title: "외국인 매수세 증가", impact: 0.01, duration: 15 },
+                { title: "글로벌 불확실성 확대", impact: -0.012, duration: 20 }
+            ]
+        };
+
+        // Initialize
+        function init() {
+            gameState.market.companies = companyData.map(c => ({
+                ...c,
+                newsTimes: []
+            }));
             
-            document.getElementById('holdingInfo').style.display = 'block';
-            document.getElementById('holdingInfo').innerHTML = `
-                <div class="holding-row">
-                    <span>보유 수량</span>
-                    <span>${holding.qty.toLocaleString()}주</span>
-                </div>
-                <div class="holding-row">
-                    <span>평균 매입가</span>
-                    <span>${formatMoney(holding.avgCost)}</span>
-                </div>
-                <div class="holding-row">
-                    <span>평가 손익</span>
-                    <span class="${pnlClass}">${formatMoney(pnl)} (${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
-                </div>
-            `;
-        } else {
-            document.getElementById('holdingInfo').style.display = 'none';
-        }
-        
-        // Trade Section Visibility
-        const canTrade = !gameState.isClosed && !gameState.isPaused;
-        if (canTrade) {
-            document.getElementById('tradeDisabledMessage').style.display = 'none';
-            document.getElementById('tradeSection').style.display = 'block';
-        } else {
-            document.getElementById('tradeDisabledMessage').style.display = 'block';
-            document.getElementById('tradeSection').style.display = 'none';
-        }
-        
-        // Related News
-        const relatedNews = gameState.news.filter(n => 
-            n.scope === 'company' && n.targetId === companyId ||
-            n.scope === 'sector' && n.targetId === company.sector ||
-            n.scope === 'market'
-        ).slice(0, 5);
-        
-        document.getElementById('modalNewsList').innerHTML = relatedNews.length ? 
-            relatedNews.map(news => createNewsHTML(news)).join('') :
-            '<div class="empty-state">관련 뉴스가 없습니다.</div>';
-        
-        document.getElementById('stockModal').classList.add('active');
-    }
+            gameState.market.companies.forEach(company => {
+                gameState.market.prices[company.id] = company.initialPrice;
+                gameState.market.previousClosePrices[company.id] = company.initialPrice;
+                gameState.market.priceHistory[company.id] = [company.initialPrice];
+            });
 
-    function closeModal() {
-        document.getElementById('stockModal').classList.remove('active');
-        currentStockId = null;
-    }
-
-    function renderMiniChart(history) {
-        const container = document.getElementById('miniChart');
-        const recentHistory = history.slice(-20);
-        const min = Math.min(...recentHistory);
-        const max = Math.max(...recentHistory);
-        const range = max - min || 1;
-        
-        container.innerHTML = recentHistory.map((price, i) => {
-            const height = ((price - min) / range) * 100;
-            const prevPrice = i > 0 ? recentHistory[i - 1] : price;
-            const barClass = price > prevPrice ? 'up' : price < prevPrice ? 'down' : '';
-            return `<div class="chart-bar ${barClass}" style="height: ${height}%"></div>`;
-        }).join('');
-    }
-
-    // Execute Trade
-    function executeTrade(type) {
-        if (gameState.isClosed || gameState.isPaused) {
-            showToast('거래소가 폐장 중이거나 일시정지 상태입니다');
-            return;
+            renderFilters();
+            renderStockList();
+            updateDisplay();
+            startGameTimer();
         }
 
-        const qty = parseInt(document.getElementById('tradeQty').value);
-        if (!qty || qty <= 0) {
-            showToast('수량을 입력해주세요');
-            return;
+        // Game Timer
+        function startGameTimer() {
+            if (gameTimer) clearInterval(gameTimer);
+            
+            gameTimer = setInterval(() => {
+                if (!gameState.isPaused && !gameState.isClosed) {
+                    gameTick();
+                }
+            }, 2000);
         }
 
-        const price = gameState.market.prices[currentStockId];
-        const amount = price * qty;
+        function gameTick() {
+            gameState.timeMinutes += 5;
 
-        if (type === 'buy') {
-            const fee = amount * 0.001;
-            const total = amount + fee;
+            if (gameState.timeMinutes === 540) {
+                gameState.isClosed = false;
+                showToast('🔔 거래소 개장!');
+            }
 
-            if (total > gameState.brokerageCash) {
-                showToast('예수금이 부족합니다');
+            if (gameState.timeMinutes > 930) {
+                gameState.isClosed = true;
+                gameState.timeMinutes = 930;
+                
+                // 전일 종가 저장
+                gameState.market.companies.forEach(company => {
+                    gameState.market.previousClosePrices[company.id] = gameState.market.prices[company.id];
+                });
+                
+                document.getElementById('nextDayBtn').style.display = 'block';
+                document.getElementById('pauseBtn').style.display = 'none';
+                showToast('🔔 거래소 폐장');
                 return;
             }
 
-            gameState.brokerageCash -= total;
-            
-            const holding = gameState.portfolio.find(h => h.companyId === currentStockId);
-            if (holding) {
-                const totalQty = holding.qty + qty;
-                holding.avgCost = (holding.avgCost * holding.qty + price * qty) / totalQty;
-                holding.qty = totalQty;
-            } else {
-                gameState.portfolio.push({
-                    companyId: currentStockId,
-                    qty: qty,
-                    avgCost: price
+            if (gameState.timeMinutes >= 540 && gameState.timeMinutes <= 930) {
+                if (Math.random() < 0.1) {
+                    generateNews();
+                }
+
+                gameState.market.marketMood += (Math.random() - 0.5) * 0.005;
+                gameState.market.marketMood = Math.max(-0.03, Math.min(0.03, gameState.market.marketMood));
+
+                gameState.market.companies.forEach(company => {
+                    updatePrice(company);
                 });
             }
 
-            showToast(`✅ 매수 완료: ${qty}주`);
-        } else {
-            const holding = gameState.portfolio.find(h => h.companyId === currentStockId);
-            if (!holding || holding.qty < qty) {
-                showToast('보유 수량이 부족합니다');
+            updateDisplay();
+            if (document.getElementById('stocksPanel').classList.contains('active')) {
+                renderStockList();
+            }
+        }
+
+        function togglePause() {
+            gameState.isPaused = !gameState.isPaused;
+            document.getElementById('pauseBtn').textContent = gameState.isPaused ? '▶️' : '⏸️';
+            showToast(gameState.isPaused ? '⏸️ 일시정지' : '▶️ 재생');
+        }
+
+        function nextDay() {
+            gameState.day++;
+            gameState.timeMinutes = 480;
+            gameState.isClosed = false;
+            document.getElementById('nextDayBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'block';
+            updateDisplay();
+            showToast(`📅 Day ${gameState.day} 시작`);
+        }
+
+        // Update Display
+        function updateDisplay() {
+            const hours = Math.floor(gameState.timeMinutes / 60);
+            const minutes = gameState.timeMinutes % 60;
+            const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+            
+            document.getElementById('timeDisplay').textContent = gameState.isClosed ? '거래소 폐장' : timeStr;
+            document.getElementById('dayDisplay').textContent = gameState.day;
+            document.getElementById('cashDisplay').textContent = formatMoney(gameState.cash);
+            document.getElementById('brokerageDisplay').textContent = formatMoney(gameState.brokerageCash);
+            
+            const stockValue = calculateStockValue();
+            const totalAssets = gameState.cash + gameState.brokerageCash + stockValue;
+            document.getElementById('totalAssets').textContent = formatMoney(totalAssets);
+            
+            const badge = document.getElementById('statusBadge');
+            const isOpen = gameState.timeMinutes >= 540 && gameState.timeMinutes <= 930;
+            
+            if (gameState.isClosed) {
+                badge.textContent = '폐장';
+                badge.className = 'status-badge';
+            } else if (isOpen) {
+                badge.textContent = '개장';
+                badge.className = 'status-badge open';
+            } else {
+                badge.textContent = '개장 전';
+                badge.className = 'status-badge';
+            }
+            
+            const moodText = gameState.market.marketMood > 0.01 ? '낙관적 🟢' :
+                           gameState.market.marketMood < -0.01 ? '비관적 🔴' : '중립 ⚪';
+            document.getElementById('marketMood').textContent = moodText;
+        }
+
+        function calculateStockValue() {
+            return gameState.portfolio.reduce((sum, holding) => {
+                const currentPrice = gameState.market.prices[holding.companyId];
+                return sum + (currentPrice * holding.qty);
+            }, 0);
+        }
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('ko-KR').format(Math.floor(amount)) + ' ₩';
+        }
+
+        // Render Filters
+        function renderFilters() {
+            const sectors = ['전체', ...new Set(companyData.map(c => c.sector))];
+            document.getElementById('filterButtons').innerHTML = sectors.map(sector => 
+                `<button class="filter-btn ${sector === '전체' ? 'active' : ''}" onclick="filterSector('${sector}')">${sector}</button>`
+            ).join('');
+        }
+
+        function filterSector(sector) {
+            gameState.selectedSector = sector;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === sector);
+            });
+            renderStockList();
+        }
+
+        // Render Stock List
+        function renderStockList() {
+            const container = document.getElementById('stockList');
+            const filtered = gameState.selectedSector === '전체' ? 
+                gameState.market.companies : 
+                gameState.market.companies.filter(c => c.sector === gameState.selectedSector);
+            
+            container.innerHTML = filtered.map(company => {
+                const price = gameState.market.prices[company.id];
+                const prevClose = gameState.market.previousClosePrices[company.id];
+                const change = ((price - prevClose) / prevClose * 100);
+                const changeAmount = price - prevClose;
+                
+                const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+                const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
+                
+                return `
+                    <div class="stock-item" onclick="openStockDetail(${company.id})">
+                        <div class="stock-info">
+                            <div class="stock-name">${company.name}</div>
+                            <div class="stock-ticker">${company.ticker} · ${company.sector}</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price">${formatMoney(price)}</div>
+                            <div class="change ${changeClass}">${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update Price
+        function updatePrice(company) {
+            const currentPrice = gameState.market.prices[company.id];
+            
+            const decay = 180;
+            let issueIndex = 0;
+            company.newsTimes.forEach(newsTick => {
+                const age = gameState.timeMinutes - newsTick;
+                const weight = Math.exp(-age / decay);
+                issueIndex += weight;
+            });
+            issueIndex = Math.min(issueIndex / 5, 1);
+
+            const randomChange = (Math.random() - 0.5) * company.baseVolatilityPerTick * 2;
+            const moodEffect = gameState.market.marketMood * 0.5;
+            
+            let newsEffect = 0;
+            const activeNews = gameState.news.filter(n => {
+                if (n.scope === 'company' && n.targetId === company.id) return true;
+                if (n.scope === 'sector' && n.targetId === company.sector) return true;
+                if (n.scope === 'market') return true;
+                return false;
+            });
+
+            activeNews.forEach(news => {
+                if (news.timestampMinutes === gameState.timeMinutes) {
+                    newsEffect += news.impactNow;
+                }
+                
+                const ticksSinceNews = (gameState.timeMinutes - news.timestampMinutes) / 5;
+                if (ticksSinceNews > 0 && ticksSinceNews <= news.impactDuration) {
+                    newsEffect += news.impactPerTick;
+                }
+            });
+
+            const totalChange = randomChange + moodEffect + newsEffect;
+            const newPrice = currentPrice * (1 + totalChange);
+            
+            gameState.market.prices[company.id] = Math.max(100, Math.floor(newPrice));
+            gameState.market.priceHistory[company.id].push(gameState.market.prices[company.id]);
+            
+            if (gameState.market.priceHistory[company.id].length > 100) {
+                gameState.market.priceHistory[company.id].shift();
+            }
+        }
+
+        // Generate News
+        function generateNews() {
+            const scopes = ['company', 'sector', 'market'];
+            const scope = scopes[Math.floor(Math.random() * scopes.length)];
+            
+            let targetId, targetName;
+            
+            if (scope === 'company') {
+                const company = gameState.market.companies[Math.floor(Math.random() * gameState.market.companies.length)];
+                targetId = company.id;
+                targetName = company.name;
+                company.newsTimes.push(gameState.timeMinutes);
+                if (company.newsTimes.length > 10) company.newsTimes.shift();
+            } else if (scope === 'sector') {
+                const sectors = [...new Set(gameState.market.companies.map(c => c.sector))];
+                targetId = sectors[Math.floor(Math.random() * sectors.length)];
+                targetName = targetId;
+            } else {
+                targetId = 'market';
+                targetName = '전체 시장';
+            }
+
+            const templates = newsTemplates[scope];
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            
+            const news = {
+                id: gameState.news.length + 1,
+                timestampMinutes: gameState.timeMinutes,
+                day: gameState.day,
+                timeStr: formatTime(gameState.timeMinutes),
+                title: template.title,
+                description: `${targetName}에 대한 ${template.title.toLowerCase()} 소식`,
+                scope: scope,
+                targetId: targetId,
+                impactNow: template.impact,
+                impactDuration: template.duration,
+                impactPerTick: template.impact / template.duration * 0.3
+            };
+
+            gameState.news.unshift(news);
+            if (gameState.news.length > 50) gameState.news.pop();
+        }
+
+        function formatTime(minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        // Open Stock Detail
+        function openStockDetail(companyId) {
+            currentStockId = companyId;
+            const company = gameState.market.companies.find(c => c.id === companyId);
+            const price = gameState.market.prices[companyId];
+            const prevClose = gameState.market.previousClosePrices[companyId];
+            const change = ((price - prevClose) / prevClose * 100);
+            const changeAmount = price - prevClose;
+            
+            document.getElementById('modalStockName').textContent = company.name;
+            document.getElementById('modalStockTicker').textContent = `${company.ticker} · ${company.sector}`;
+            document.getElementById('modalStockPrice').textContent = formatMoney(price);
+            
+            const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+            const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
+            document.getElementById('modalStockChange').innerHTML = 
+                `<span class="${changeClass}">${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)</span>`;
+            
+            renderMiniChart(gameState.market.priceHistory[companyId]);
+            
+            // Holding Info
+            const holding = gameState.portfolio.find(h => h.companyId === companyId);
+            if (holding) {
+                const pnl = (price - holding.avgCost) * holding.qty;
+                const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
+                const pnlClass = pnl >= 0 ? 'positive' : 'negative';
+                
+                document.getElementById('holdingInfo').style.display = 'block';
+                document.getElementById('holdingInfo').innerHTML = `
+                    <div class="holding-row">
+                        <span>보유 수량</span>
+                        <span>${holding.qty.toLocaleString()}주</span>
+                    </div>
+                    <div class="holding-row">
+                        <span>평균 매입가</span>
+                        <span>${formatMoney(holding.avgCost)}</span>
+                    </div>
+                    <div class="holding-row">
+                        <span>평가 손익</span>
+                        <span class="${pnlClass}">${formatMoney(pnl)} (${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
+                    </div>
+                `;
+            } else {
+                document.getElementById('holdingInfo').style.display = 'none';
+            }
+            
+            // Trade Section
+            const canTrade = !gameState.isClosed && !gameState.isPaused;
+            if (canTrade) {
+                document.getElementById('tradeDisabledMessage').style.display = 'none';
+                document.getElementById('tradeSection').style.display = 'block';
+                
+                // Update balance and max buy
+                document.getElementById('tradeBalance').textContent = formatMoney(gameState.brokerageCash);
+                const maxQty = Math.floor(gameState.brokerageCash / (price * 1.001));
+                document.getElementById('maxBuyQty').textContent = maxQty.toLocaleString() + '주';
+                
+                // Reset quantity input
+                numpadValue = '';
+                document.getElementById('qtyDisplay').textContent = '수량 입력';
+                document.getElementById('qtyDisplay').classList.add('empty');
+                document.getElementById('tradeEstimate').style.display = 'none';
+            } else {
+                document.getElementById('tradeDisabledMessage').style.display = 'block';
+                document.getElementById('tradeSection').style.display = 'none';
+            }
+            
+            // Related News
+            const relatedNews = gameState.news.filter(n => 
+                n.scope === 'company' && n.targetId === companyId ||
+                n.scope === 'sector' && n.targetId === company.sector ||
+                n.scope === 'market'
+            ).slice(0, 5);
+            
+            document.getElementById('modalNewsList').innerHTML = relatedNews.length ? 
+                relatedNews.map(news => createNewsHTML(news)).join('') :
+                '<div class="empty-state">관련 뉴스가 없습니다.</div>';
+            
+            document.getElementById('stockModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('stockModal').classList.remove('active');
+            currentStockId = null;
+        }
+
+        function renderMiniChart(history) {
+            const container = document.getElementById('miniChart');
+            const recentHistory = history.slice(-20);
+            const min = Math.min(...recentHistory);
+            const max = Math.max(...recentHistory);
+            const range = max - min || 1;
+            
+            container.innerHTML = recentHistory.map((price, i) => {
+                const height = ((price - min) / range) * 100;
+                const prevPrice = i > 0 ? recentHistory[i - 1] : price;
+                const barClass = price > prevPrice ? 'up' : price < prevPrice ? 'down' : '';
+                return `<div class="chart-bar ${barClass}" style="height: ${height}%"></div>`;
+            }).join('');
+        }
+
+        // Numpad Functions
+        function showNumpad() {
+            if (gameState.isClosed || gameState.isPaused) return;
+            numpadValue = '';
+            document.getElementById('numpadDisplay').textContent = '0';
+            document.getElementById('numpadDisplay').classList.add('empty');
+            document.getElementById('numpadModal').classList.add('active');
+        }
+
+        function closeNumpad() {
+            document.getElementById('numpadModal').classList.remove('active');
+        }
+
+        function addDigit(digit) {
+            if (numpadValue === '' && digit === '0') return;
+            if (numpadValue.length >= 10) return;
+            
+            numpadValue += digit;
+            document.getElementById('numpadDisplay').textContent = parseInt(numpadValue).toLocaleString();
+            document.getElementById('numpadDisplay').classList.remove('empty');
+        }
+
+        function backspace() {
+            numpadValue = numpadValue.slice(0, -1);
+            if (numpadValue === '') {
+                document.getElementById('numpadDisplay').textContent = '0';
+                document.getElementById('numpadDisplay').classList.add('empty');
+            } else {
+                document.getElementById('numpadDisplay').textContent = parseInt(numpadValue).toLocaleString();
+            }
+        }
+
+        function confirmNumpad() {
+            const qty = parseInt(numpadValue) || 0;
+            
+            if (qty === 0) {
+                document.getElementById('qtyDisplay').textContent = '수량 입력';
+                document.getElementById('qtyDisplay').classList.add('empty');
+                document.getElementById('tradeEstimate').style.display = 'none';
+            } else {
+                document.getElementById('qtyDisplay').textContent = qty.toLocaleString() + '주';
+                document.getElementById('qtyDisplay').classList.remove('empty');
+                updateTradeEstimate(qty);
+            }
+            
+            closeNumpad();
+        }
+
+        function updateTradeEstimate(qty) {
+            const price = gameState.market.prices[currentStockId];
+            const amount = price * qty;
+            const fee = amount * 0.001;
+            const total = amount + fee;
+            
+            document.getElementById('estimateAmount').textContent = formatMoney(amount);
+            document.getElementById('estimateFee').textContent = formatMoney(fee);
+            document.getElementById('estimateTotal').textContent = formatMoney(total);
+            document.getElementById('tradeEstimate').style.display = 'block';
+        }
+
+        // Execute Trade
+        function executeTrade(type) {
+            if (gameState.isClosed || gameState.isPaused) {
+                showToast('거래소가 폐장 중이거나 일시정지 상태입니다');
                 return;
             }
 
-            const fee = amount * 0.001;
-            const tax = amount * 0.002;
-            const realizedPnL = (price - holding.avgCost) * qty;
+            const qtyText = document.getElementById('qtyDisplay').textContent;
+            if (qtyText === '수량 입력') {
+                showToast('수량을 입력해주세요');
+                return;
+            }
+
+            const qty = parseInt(qtyText.replace(/[^0-9]/g, ''));
+            if (!qty || qty <= 0) {
+                showToast('수량을 입력해주세요');
+                return;
+            }
+
+            const price = gameState.market.prices[currentStockId];
+            const amount = price * qty;
+
+            if (type === 'buy') {
+                const fee = amount * 0.001;
+                const total = amount + fee;
+
+                if (total > gameState.brokerageCash) {
+                    showToast('예수금이 부족합니다');
+                    return;
+                }
+
+                gameState.brokerageCash -= total;
+                
+                const holding = gameState.portfolio.find(h => h.companyId === currentStockId);
+                if (holding) {
+                    const totalQty = holding.qty + qty;
+                    holding.avgCost = (holding.avgCost * holding.qty + price * qty) / totalQty;
+                    holding.qty = totalQty;
+                } else {
+                    gameState.portfolio.push({
+                        companyId: currentStockId,
+                        qty: qty,
+                        avgCost: price
+                    });
+                }
+
+                showToast(`✅ 매수 완료: ${qty}주`);
+            } else {
+                const holding = gameState.portfolio.find(h => h.companyId === currentStockId);
+                if (!holding || holding.qty < qty) {
+                    showToast('보유 수량이 부족합니다');
+                    return;
+                }
+
+                const fee = amount * 0.001;
+                const tax = amount * 0.002;
+                const realizedPnL = (price - holding.avgCost) * qty;
+                
+                let capitalGainsTax = 0;
+                const holdingValue = price * holding.qty;
+                if (holdingValue >= 1000000000) {
+                    const taxRate = holdingValue >= 10000000000 ? 0.275 :
+                                   holdingValue >= 5000000000 ? 0.242 : 0.22;
+                    capitalGainsTax = Math.max(0, realizedPnL) * taxRate;
+                }
+
+                const total = amount - fee - tax - capitalGainsTax;
+                gameState.brokerageCash += total;
+
+                holding.qty -= qty;
+                if (holding.qty === 0) {
+                    gameState.portfolio = gameState.portfolio.filter(h => h.companyId !== currentStockId);
+                }
+
+                showToast(`✅ 매도 완료: ${qty}주`);
+            }
+
+            updateDisplay();
+            openStockDetail(currentStockId);
+        }
+
+        // Transfer Functions
+        function showTransferConfirm(direction) {
+            const amount = parseInt(document.getElementById('transferAmount').value);
+            if (!amount || amount <= 0) {
+                showToast('금액을 입력해주세요');
+                return;
+            }
+
+            const directionText = direction === 'toBrokerage' ? '현금 → 예수금' : '예수금 → 현금';
+            const available = direction === 'toBrokerage' ? gameState.cash : gameState.brokerageCash;
+
+            if (amount > available) {
+                showToast('잔액이 부족합니다');
+                return;
+            }
+
+            document.getElementById('confirmTitle').textContent = '계좌 이체 확인';
+            document.getElementById('confirmMessage').innerHTML = 
+                `<strong>${formatMoney(amount)}</strong>을(를)<br>${directionText} 이체하시겠습니까?`;
             
-            let capitalGainsTax = 0;
-            const holdingValue = price * holding.qty;
-            if (holdingValue >= 1000000000) {
-                const taxRate = holdingValue >= 10000000000 ? 0.275 :
-                               holdingValue >= 5000000000 ? 0.242 : 0.22;
-                capitalGainsTax = Math.max(0, realizedPnL) * taxRate;
+            confirmCallback = () => executeTransfer(direction, amount);
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function executeTransfer(direction, amount) {
+            if (direction === 'toBrokerage') {
+                gameState.cash -= amount;
+                gameState.brokerageCash += amount;
+                showToast(`✅ 예수금으로 ${formatMoney(amount)} 이체`);
+            } else {
+                gameState.brokerageCash -= amount;
+                gameState.cash += amount;
+                showToast(`✅ 현금으로 ${formatMoney(amount)} 이체`);
             }
 
-            const total = amount - fee - tax - capitalGainsTax;
-            gameState.brokerageCash += total;
+            document.getElementById('transferAmount').value = '';
+            updateDisplay();
+        }
 
-            holding.qty -= qty;
-            if (holding.qty === 0) {
-                gameState.portfolio = gameState.portfolio.filter(h => h.companyId !== currentStockId);
+        function confirmAction() {
+            if (confirmCallback) {
+                confirmCallback();
+                confirmCallback = null;
+            }
+            closeConfirm();
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        // Switch Tab
+        function switchTab(tab) {
+            document.querySelectorAll('.gnb-item').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            
+            event.target.closest('.gnb-item').classList.add('active');
+            document.getElementById(tab + 'Panel').classList.add('active');
+            
+            if (tab === 'portfolio') renderPortfolio();
+            if (tab === 'news') renderNews();
+        }
+
+        // Render Portfolio
+        function renderPortfolio() {
+            const container = document.getElementById('portfolioList');
+            
+            if (gameState.portfolio.length === 0) {
+                container.innerHTML = '<div class="empty-state">보유 중인 주식이 없습니다</div>';
+                return;
             }
 
-            showToast(`✅ 매도 완료: ${qty}주`);
-        }
+            container.innerHTML = gameState.portfolio.map(holding => {
+                const company = gameState.market.companies.find(c => c.id === holding.companyId);
+                const currentPrice = gameState.market.prices[holding.companyId];
+                const prevClose = gameState.market.previousClosePrices[holding.companyId];
+                const change = ((currentPrice - prevClose) / prevClose * 100);
+                const changeAmount = currentPrice - prevClose;
+                const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+                const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
+                
+                const totalValue = currentPrice * holding.qty;
+                const pnl = (currentPrice - holding.avgCost) * holding.qty;
+                const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
+                const pnlClass = pnl >= 0 ? 'positive' : 'negative';
 
-        document.getElementById('tradeQty').value = '';
-        updateDisplay();
-        openStockDetail(currentStockId);
-    }
-
-    // Transfer Functions
-    function showTransferConfirm(direction) {
-        const amount = parseInt(document.getElementById('transferAmount').value);
-        if (!amount || amount <= 0) {
-            showToast('금액을 입력해주세요');
-            return;
-        }
-
-        const directionText = direction === 'toBrokerage' ? '현금 → 예수금' : '예수금 → 현금';
-        const available = direction === 'toBrokerage' ? gameState.cash : gameState.brokerageCash;
-
-        if (amount > available) {
-            showToast('잔액이 부족합니다');
-            return;
-        }
-
-        document.getElementById('confirmTitle').textContent = '계좌 이체 확인';
-        document.getElementById('confirmMessage').innerHTML = 
-            `<strong>${formatMoney(amount)}</strong>을(를)<br>${directionText} 이체하시겠습니까?`;
-        
-        confirmCallback = () => executeTransfer(direction, amount);
-        document.getElementById('confirmModal').classList.add('active');
-    }
-
-    function executeTransfer(direction, amount) {
-        if (direction === 'toBrokerage') {
-            gameState.cash -= amount;
-            gameState.brokerageCash += amount;
-            showToast(`✅ 예수금으로 ${formatMoney(amount)} 이체`);
-        } else {
-            gameState.brokerageCash -= amount;
-            gameState.cash += amount;
-            showToast(`✅ 현금으로 ${formatMoney(amount)} 이체`);
-        }
-
-        document.getElementById('transferAmount').value = '';
-        updateDisplay();
-    }
-
-    function confirmAction() {
-        if (confirmCallback) {
-            confirmCallback();
-            confirmCallback = null;
-        }
-        closeConfirm();
-    }
-
-    function closeConfirm() {
-        document.getElementById('confirmModal').classList.remove('active');
-    }
-
-    // Switch Tab
-    function switchTab(tab) {
-        document.querySelectorAll('.gnb-item').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-        
-        event.target.closest('.gnb-item').classList.add('active');
-        document.getElementById(tab + 'Panel').classList.add('active');
-        
-        if (tab === 'portfolio') renderPortfolio();
-        if (tab === 'news') renderNews();
-    }
-
-    // Render Portfolio
-    function renderPortfolio() {
-        const container = document.getElementById('portfolioList');
-        
-        if (gameState.portfolio.length === 0) {
-            container.innerHTML = '<div class="empty-state">보유 중인 주식이 없습니다</div>';
-            return;
-        }
-
-        container.innerHTML = gameState.portfolio.map(holding => {
-            const company = gameState.market.companies.find(c => c.id === holding.companyId);
-            const currentPrice = gameState.market.prices[holding.companyId];
-            const totalValue = currentPrice * holding.qty;
-            const pnl = (currentPrice - holding.avgCost) * holding.qty;
-            const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
-            const pnlClass = pnl >= 0 ? 'positive' : 'negative';
-
-            return `
-                <div class="portfolio-item">
-                    <div class="portfolio-header">
-                        <div>
-                            <div class="portfolio-name">${company.name}</div>
-                            <div class="portfolio-ticker">${company.ticker}</div>
+                return `
+                    <div class="portfolio-item">
+                        <div class="portfolio-header">
+                            <div>
+                                <div class="portfolio-name">${company.name}</div>
+                                <div class="portfolio-ticker">${company.ticker}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="portfolio-name">${formatMoney(currentPrice)}</div>
+                                <div class="portfolio-ticker ${changeClass}">${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)</div>
+                            </div>
                         </div>
-                        <div style="text-align: right;">
-                            <div class="portfolio-name">${formatMoney(currentPrice)}</div>
-                        </div>
-                    </div>
-                    <div class="portfolio-grid">
-                        <div class="portfolio-stat">
-                            <div class="portfolio-label">보유 수량</div>
-                            <div class="portfolio-value">${holding.qty.toLocaleString()}주</div>
-                        </div>
-                        <div class="portfolio-stat">
-                            <div class="portfolio-label">평균 단가</div>
-                            <div class="portfolio-value">${formatMoney(holding.avgCost)}</div>
-                        </div>
-                        <div class="portfolio-stat">
-                            <div class="portfolio-label">평가액</div>
-                            <div class="portfolio-value">${formatMoney(totalValue)}</div>
-                        </div>
-                        <div class="portfolio-stat">
-                            <div class="portfolio-label">손익</div>
-                            <div class="portfolio-value ${pnlClass}">
-                                ${formatMoney(pnl)}<br>
-                                <span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
+                        <div class="portfolio-grid">
+                            <div class="portfolio-stat">
+                                <div class="portfolio-label">보유 수량</div>
+                                <div class="portfolio-value">${holding.qty.toLocaleString()}주</div>
+                            </div>
+                            <div class="portfolio-stat">
+                                <div class="portfolio-label">평균 단가</div>
+                                <div class="portfolio-value">${formatMoney(holding.avgCost)}</div>
+                            </div>
+                            <div class="portfolio-stat">
+                                <div class="portfolio-label">평가액</div>
+                                <div class="portfolio-value">${formatMoney(totalValue)}</div>
+                            </div>
+                            <div class="portfolio-stat">
+                                <div class="portfolio-label">손익</div>
+                                <div class="portfolio-value ${pnlClass}">
+                                    ${formatMoney(pnl)}<br>
+                                    <span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                `;
+            }).join('');
+        }
+
+        // Render News
+        function renderNews() {
+            const container = document.getElementById('newsList');
+            container.innerHTML = gameState.news.length ? 
+                gameState.news.map(news => createNewsHTML(news)).join('') :
+                '<div class="empty-state">아직 뉴스가 없습니다</div>';
+        }
+
+        function createNewsHTML(news) {
+            const impactClass = news.impactNow >= 0 ? 'impact-positive' : 'impact-negative';
+            const impactText = news.impactNow >= 0 ? `+${(news.impactNow * 100).toFixed(1)}%` : `${(news.impactNow * 100).toFixed(1)}%`;
+            
+            return `
+                <div class="news-item ${news.scope}">
+                    <div class="news-header">
+                        <span>Day ${news.day} ${news.timeStr}</span>
+                        <span>${news.scope === 'company' ? '기업' : news.scope === 'sector' ? '업종' : '시장'}</span>
+                    </div>
+                    <div class="news-title">${news.title}</div>
+                    <div class="news-description">${news.description}</div>
+                    <div class="news-impact ${impactClass}">영향: ${impactText}</div>
                 </div>
             `;
-        }).join('');
-    }
+        }
 
-    // Render News
-    function renderNews() {
-        const container = document.getElementById('newsList');
-        container.innerHTML = gameState.news.length ? 
-            gameState.news.map(news => createNewsHTML(news)).join('') :
-            '<div class="empty-state">아직 뉴스가 없습니다</div>';
-    }
+        // Show Toast
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2500);
+        }
 
-    function createNewsHTML(news) {
-        const impactClass = news.impactNow >= 0 ? 'impact-positive' : 'impact-negative';
-        const impactText = news.impactNow >= 0 ? `+${(news.impactNow * 100).toFixed(1)}%` : `${(news.impactNow * 100).toFixed(1)}%`;
-        
-        return `
-            <div class="news-item ${news.scope}">
-                <div class="news-header">
-                    <span>Day ${news.day} ${news.timeStr}</span>
-                    <span>${news.scope === 'company' ? '기업' : news.scope === 'sector' ? '업종' : '시장'}</span>
-                </div>
-                <div class="news-title">${news.title}</div>
-                <div class="news-description">${news.description}</div>
-                <div class="news-impact ${impactClass}">영향: ${impactText}</div>
-            </div>
-        `;
-    }
-
-    // Show Toast
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.remove();
-        }, 2500);
-    }
-
-    // Initialize on load
-    init();
-</script>
-```
-
+        // Initialize
+        init();
+    </script>
 </body>
 </html>
