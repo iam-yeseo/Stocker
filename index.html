@@ -1688,10 +1688,14 @@
         function renderMiniChart(candleHistory) {
             const container = document.getElementById('miniChart');
             const recentCandles = candleHistory.slice(-20);
-            
-            const allPrices = recentCandles.flatMap(c => [c.high, c.low]);
-            const min = Math.min(...allPrices);
-            const max = Math.max(...allPrices);
+
+            // Optimize min/max calculation without intermediate arrays
+            let min = Infinity;
+            let max = -Infinity;
+            for (const candle of recentCandles) {
+                if (candle.high > max) max = candle.high;
+                if (candle.low < min) min = candle.low;
+            }
             const range = max - min || 1;
             
             container.innerHTML = recentCandles.map(candle => {
