@@ -1155,6 +1155,11 @@
                 marketMood: 0
             },
             news: [],
+            newsCache: {
+                company: {},  // { companyId: [news items] }
+                sector: {},   // { sector: [news items] }
+                market: []
+            },
             selectedSector: '전체',
             isPaused: false,
             isClosed: false
@@ -1473,14 +1478,14 @@
 
             const randomChange = (Math.random() - 0.5) * company.baseVolatilityPerTick * 2;
             const moodEffect = gameState.market.marketMood * 0.5;
-            
+
             let newsEffect = 0;
-            const activeNews = gameState.news.filter(n => {
-                if (n.scope === 'company' && n.targetId === company.id) return true;
-                if (n.scope === 'sector' && n.targetId === company.sector) return true;
-                if (n.scope === 'market') return true;
-                return false;
-            });
+            // Use cached news instead of filtering
+            const activeNews = [
+                ...(gameState.newsCache.company[company.id] || []),
+                ...(gameState.newsCache.sector[company.sector] || []),
+                ...gameState.newsCache.market
+            ];
 
             activeNews.forEach(news => {
                 if (news.timestampMinutes === gameState.timeMinutes) {
@@ -1517,6 +1522,29 @@
             if (candleHistory.length > 30) {
                 candleHistory.shift();
             }
+        }
+
+        // Update News Cache
+        function updateNewsCache() {
+            gameState.newsCache.company = {};
+            gameState.newsCache.sector = {};
+            gameState.newsCache.market = [];
+
+            gameState.news.forEach(n => {
+                if (n.scope === 'company') {
+                    if (!gameState.newsCache.company[n.targetId]) {
+                        gameState.newsCache.company[n.targetId] = [];
+                    }
+                    gameState.newsCache.company[n.targetId].push(n);
+                } else if (n.scope === 'sector') {
+                    if (!gameState.newsCache.sector[n.targetId]) {
+                        gameState.newsCache.sector[n.targetId] = [];
+                    }
+                    gameState.newsCache.sector[n.targetId].push(n);
+                } else if (n.scope === 'market') {
+                    gameState.newsCache.market.push(n);
+                }
+            });
         }
 
         // Generate News
@@ -1560,6 +1588,9 @@
 
             gameState.news.unshift(news);
             if (gameState.news.length > 50) gameState.news.pop();
+
+            // Update news cache
+            updateNewsCache();
         }
 
         function formatTime(minutes) {
