@@ -1383,32 +1383,64 @@
         // Render Stock List
         function renderStockList() {
             const container = document.getElementById('stockList');
-            const filtered = gameState.selectedSector === '전체' ? 
-                gameState.market.companies : 
+            const filtered = gameState.selectedSector === '전체' ?
+                gameState.market.companies :
                 gameState.market.companies.filter(c => c.sector === gameState.selectedSector);
-            
-            container.innerHTML = filtered.map(company => {
+
+            // Check if we need full re-render (sector change or initial render)
+            const existingItems = container.querySelectorAll('.stock-item');
+            const needsFullRender = existingItems.length !== filtered.length ||
+                                   (existingItems.length > 0 &&
+                                    parseInt(existingItems[0].dataset.companyId) !== filtered[0].id);
+
+            if (needsFullRender) {
+                // Full render when filter changes
+                container.innerHTML = filtered.map(company => {
+                    const price = gameState.market.prices[company.id];
+                    const prevClose = gameState.market.previousClosePrices[company.id];
+                    const change = ((price - prevClose) / prevClose * 100);
+                    const changeAmount = price - prevClose;
+
+                    const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+                    const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
+
+                    return `
+                        <div class="stock-item" data-company-id="${company.id}">
+                            <div class="stock-info">
+                                <div class="stock-name">${company.name}</div>
+                                <div class="stock-ticker">${company.ticker} · ${company.sector}</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price" data-price></div>
+                                <div class="change" data-change></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Update only prices and changes (always runs)
+            filtered.forEach(company => {
+                const item = container.querySelector(`[data-company-id="${company.id}"]`);
+                if (!item) return;
+
                 const price = gameState.market.prices[company.id];
                 const prevClose = gameState.market.previousClosePrices[company.id];
                 const change = ((price - prevClose) / prevClose * 100);
                 const changeAmount = price - prevClose;
-                
+
                 const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
                 const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
-                
-                return `
-                    <div class="stock-item" onclick="openStockDetail(${company.id})">
-                        <div class="stock-info">
-                            <div class="stock-name">${company.name}</div>
-                            <div class="stock-ticker">${company.ticker} · ${company.sector}</div>
-                        </div>
-                        <div class="stock-price">
-                            <div class="price">${formatMoney(price)}</div>
-                            <div class="change ${changeClass}">${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+
+                const priceEl = item.querySelector('[data-price]');
+                const changeEl = item.querySelector('[data-change]');
+
+                if (priceEl) priceEl.textContent = formatMoney(price);
+                if (changeEl) {
+                    changeEl.textContent = `${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)`;
+                    changeEl.className = `change ${changeClass}`;
+                }
+            });
         }
 
         // Update Price
