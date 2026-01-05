@@ -1268,7 +1268,31 @@
                 gameState.market.marketMood += (Math.random() - 0.5) * 0.005;
                 gameState.market.marketMood = Math.max(-0.03, Math.min(0.03, gameState.market.marketMood));
 
-                gameState.market.companies.forEach(company => {
+                // Lazy price updates: only update prices for visible/needed stocks
+                const companiesToUpdate = new Set();
+
+                // Always update stocks in portfolio
+                gameState.portfolio.forEach(holding => {
+                    const company = gameState.market.companies.find(c => c.id === holding.companyId);
+                    if (company) companiesToUpdate.add(company);
+                });
+
+                // If stock modal is open, update that stock
+                if (currentStockId) {
+                    const company = gameState.market.companies.find(c => c.id === currentStockId);
+                    if (company) companiesToUpdate.add(company);
+                }
+
+                // If stocks panel is active, update visible stocks
+                if (document.getElementById('stocksPanel').classList.contains('active')) {
+                    const visibleCompanies = gameState.selectedSector === '전체' ?
+                        gameState.market.companies :
+                        gameState.market.companies.filter(c => c.sector === gameState.selectedSector);
+                    visibleCompanies.forEach(company => companiesToUpdate.add(company));
+                }
+
+                // Update all identified companies
+                companiesToUpdate.forEach(company => {
                     updatePrice(company);
                 });
             }
