@@ -1953,62 +1953,95 @@
         // Render Portfolio
         function renderPortfolio() {
             const container = document.getElementById('portfolioList');
-            
+
             if (gameState.portfolio.length === 0) {
                 container.innerHTML = '<div class="empty-state">보유 중인 주식이 없습니다</div>';
                 return;
             }
 
-            container.innerHTML = gameState.portfolio.map(holding => {
-                const company = gameState.market.companies.find(c => c.id === holding.companyId);
+            // Check if we need full re-render (portfolio composition changed)
+            const existingItems = container.querySelectorAll('.portfolio-item');
+            const portfolioIds = gameState.portfolio.map(h => h.companyId).sort().join(',');
+            const existingIds = Array.from(existingItems).map(el => el.dataset.companyId).sort().join(',');
+            const needsFullRender = portfolioIds !== existingIds;
+
+            if (needsFullRender) {
+                // Full render when holdings change
+                container.innerHTML = gameState.portfolio.map(holding => {
+                    const company = gameState.market.companies.find(c => c.id === holding.companyId);
+                    return `
+                        <div class="portfolio-item" data-company-id="${holding.companyId}">
+                            <div class="portfolio-header">
+                                <div>
+                                    <div class="portfolio-name">${company.name}</div>
+                                    <div class="portfolio-ticker">${company.ticker}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="portfolio-name" data-current-price></div>
+                                    <div class="portfolio-ticker" data-price-change></div>
+                                </div>
+                            </div>
+                            <div class="portfolio-grid">
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-label">보유 수량</div>
+                                    <div class="portfolio-value" data-qty></div>
+                                </div>
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-label">평균 단가</div>
+                                    <div class="portfolio-value" data-avg-cost></div>
+                                </div>
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-label">평가액</div>
+                                    <div class="portfolio-value" data-total-value></div>
+                                </div>
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-label">손익</div>
+                                    <div class="portfolio-value" data-pnl></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Update values for each holding
+            gameState.portfolio.forEach(holding => {
+                const item = container.querySelector(`[data-company-id="${holding.companyId}"]`);
+                if (!item) return;
+
                 const currentPrice = gameState.market.prices[holding.companyId];
                 const prevClose = gameState.market.previousClosePrices[holding.companyId];
                 const change = ((currentPrice - prevClose) / prevClose * 100);
                 const changeAmount = currentPrice - prevClose;
                 const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
                 const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
-                
+
                 const totalValue = currentPrice * holding.qty;
                 const pnl = (currentPrice - holding.avgCost) * holding.qty;
                 const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
                 const pnlClass = pnl >= 0 ? 'positive' : 'negative';
 
-                return `
-                    <div class="portfolio-item">
-                        <div class="portfolio-header">
-                            <div>
-                                <div class="portfolio-name">${company.name}</div>
-                                <div class="portfolio-ticker">${company.ticker}</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div class="portfolio-name">${formatMoney(currentPrice)}</div>
-                                <div class="portfolio-ticker ${changeClass}">${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)</div>
-                            </div>
-                        </div>
-                        <div class="portfolio-grid">
-                            <div class="portfolio-stat">
-                                <div class="portfolio-label">보유 수량</div>
-                                <div class="portfolio-value">${holding.qty.toLocaleString()}주</div>
-                            </div>
-                            <div class="portfolio-stat">
-                                <div class="portfolio-label">평균 단가</div>
-                                <div class="portfolio-value">${formatMoney(holding.avgCost)}</div>
-                            </div>
-                            <div class="portfolio-stat">
-                                <div class="portfolio-label">평가액</div>
-                                <div class="portfolio-value">${formatMoney(totalValue)}</div>
-                            </div>
-                            <div class="portfolio-stat">
-                                <div class="portfolio-label">손익</div>
-                                <div class="portfolio-value ${pnlClass}">
-                                    ${formatMoney(pnl)}<br>
-                                    <span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                // Update dynamic values
+                const priceEl = item.querySelector('[data-current-price]');
+                const changeEl = item.querySelector('[data-price-change]');
+                const qtyEl = item.querySelector('[data-qty]');
+                const avgCostEl = item.querySelector('[data-avg-cost]');
+                const totalValueEl = item.querySelector('[data-total-value]');
+                const pnlEl = item.querySelector('[data-pnl]');
+
+                if (priceEl) priceEl.textContent = formatMoney(currentPrice);
+                if (changeEl) {
+                    changeEl.textContent = `${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)`;
+                    changeEl.className = `portfolio-ticker ${changeClass}`;
+                }
+                if (qtyEl) qtyEl.textContent = holding.qty.toLocaleString() + '주';
+                if (avgCostEl) avgCostEl.textContent = formatMoney(holding.avgCost);
+                if (totalValueEl) totalValueEl.textContent = formatMoney(totalValue);
+                if (pnlEl) {
+                    pnlEl.innerHTML = `${formatMoney(pnl)}<br><span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
+                    pnlEl.className = `portfolio-value ${pnlClass}`;
+                }
+            });
         }
 
         // Render News
