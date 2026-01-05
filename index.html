@@ -1217,7 +1217,20 @@
             renderFilters();
             renderStockList();
             updateDisplay();
+            setupEventDelegation();
             startGameTimer();
+        }
+
+        // Setup Event Delegation
+        function setupEventDelegation() {
+            // Stock list click delegation
+            document.getElementById('stockList').addEventListener('click', (e) => {
+                const stockItem = e.target.closest('.stock-item');
+                if (stockItem) {
+                    const companyId = parseInt(stockItem.dataset.companyId);
+                    if (companyId) openStockDetail(companyId);
+                }
+            });
         }
 
         // Game Timer
