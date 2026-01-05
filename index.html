@@ -1155,6 +1155,11 @@
                 marketMood: 0
             },
             news: [],
+            newsCache: {
+                company: {},  // { companyId: [news items] }
+                sector: {},   // { sector: [news items] }
+                market: []
+            },
             selectedSector: '전체',
             isPaused: false,
             isClosed: false
@@ -1165,6 +1170,10 @@
         let confirmCallback = null;
         let numpadValue = '';
         let numpadMode = 'trade'; // 'trade' or 'transfer'
+        let lastTickTime = 0;
+        const TICK_INTERVAL = 2000; // 2 seconds
+        let activeToasts = [];
+        const MAX_TOASTS = 3;
 
         // Company Data (변동성 1/3로 감소)
         const companyData = [{"id":1,"name":"바나나","ticker":"BANN","sector":"테크/IT","initialPrice":85000,"baseVolatilityPerTick":0.0022},{"id":2,"name":"샘 솔루션","ticker":"SSOL","sector":"테크/IT","initialPrice":72000,"baseVolatilityPerTick":0.0022},{"id":3,"name":"소미텍","ticker":"SOMI","sector":"테크/IT","initialPrice":125000,"baseVolatilityPerTick":0.0022},{"id":4,"name":"서니","ticker":"SUNY","sector":"테크/IT","initialPrice":45000,"baseVolatilityPerTick":0.0044},{"id":5,"name":"흐웨이","ticker":"HWEI","sector":"테크/IT","initialPrice":32000,"baseVolatilityPerTick":0.0044},{"id":6,"name":"Cloz AI","ticker":"CLZA","sector":"테크/IT","initialPrice":150000,"baseVolatilityPerTick":0.0081},{"id":7,"name":"루트 테크놀로지","ticker":"RRTN","sector":"테크/IT","initialPrice":58000,"baseVolatilityPerTick":0.0128},{"id":8,"name":"ZPT","ticker":"ZPTT","sector":"테크/IT","initialPrice":210000,"baseVolatilityPerTick":0.0081},{"id":9,"name":"모르모트제약","ticker":"MRMT","sector":"바이오/제약","initialPrice":120000,"baseVolatilityPerTick":0.0117},{"id":10,"name":"무한제약","ticker":"MUHN","sector":"바이오/제약","initialPrice":88000,"baseVolatilityPerTick":0.0117},{"id":11,"name":"HBM 바이오","ticker":"HBMB","sector":"바이오/제약","initialPrice":45000,"baseVolatilityPerTick":0.0187},{"id":12,"name":"롱헤어연구소","ticker":"LHRL","sector":"바이오/제약","initialPrice":23000,"baseVolatilityPerTick":0.0187},{"id":13,"name":"안주거제약","ticker":"AZGB","sector":"바이오/제약","initialPrice":65000,"baseVolatilityPerTick":0.0187},{"id":14,"name":"한대자동차","ticker":"HAND","sector":"자동차/에너지","initialPrice":190000,"baseVolatilityPerTick":0.002},{"id":15,"name":"기어자동차","ticker":"GEAR","sector":"자동차/에너지","initialPrice":85000,"baseVolatilityPerTick":0.002},{"id":16,"name":"한국자동차","ticker":"HGCA","sector":"자동차/에너지","initialPrice":12000,"baseVolatilityPerTick":0.002},{"id":17,"name":"인도오일","ticker":"INDO","sector":"자동차/에너지","initialPrice":68000,"baseVolatilityPerTick":0.004},{"id":18,"name":"만슬라오일","ticker":"MSLO","sector":"자동차/에너지","initialPrice":110000,"baseVolatilityPerTick":0.004},{"id":19,"name":"호르몬플라스틱","ticker":"HMPL","sector":"자동차/에너지","initialPrice":150000,"baseVolatilityPerTick":0.004},{"id":20,"name":"두대중공업","ticker":"DDHV","sector":"자동차/에너지","initialPrice":18000,"baseVolatilityPerTick":0.002},{"id":21,"name":"무력중공업","ticker":"MRHV","sector":"자동차/에너지","initialPrice":22000,"baseVolatilityPerTick":0.0073},{"id":22,"name":"애플릭스","ticker":"APLX","sector":"엔터테인먼트","initialPrice":420000,"baseVolatilityPerTick":0.0028},{"id":23,"name":"티브잉","ticker":"TVNG","sector":"엔터테인먼트","initialPrice":85000,"baseVolatilityPerTick":0.0103},{"id":24,"name":"사과TV","ticker":"APTV","sector":"엔터테인먼트","initialPrice":125000,"baseVolatilityPerTick":0.0056},{"id":25,"name":"PJY엔터테인먼트","ticker":"PJYE","sector":"엔터테인먼트","initialPrice":68000,"baseVolatilityPerTick":0.0103},{"id":26,"name":"MS엔터테인먼트","ticker":"MSET","sector":"엔터테인먼트","initialPrice":150000,"baseVolatilityPerTick":0.0103},{"id":27,"name":"하이파이브","ticker":"HIFI","sector":"엔터테인먼트","initialPrice":250000,"baseVolatilityPerTick":0.0056},{"id":28,"name":"22세기 영화사","ticker":"EEMV","sector":"엔터테인먼트","initialPrice":8000,"baseVolatilityPerTick":0.0163},{"id":29,"name":"브라더스","ticker":"BRTS","sector":"엔터테인먼트","initialPrice":5500,"baseVolatilityPerTick":0.0163},{"id":30,"name":"캘리포니아무비","ticker":"CLMV","sector":"엔터테인먼트","initialPrice":12000,"baseVolatilityPerTick":0.0163},{"id":31,"name":"마마존","ticker":"MMZN","sector":"생활/식품","initialPrice":180000,"baseVolatilityPerTick":0.0016},{"id":32,"name":"코스트카","ticker":"CSTK","sector":"생활/식품","initialPrice":350000,"baseVolatilityPerTick":0.0016},{"id":33,"name":"위마트","ticker":"WEMA","sector":"생활/식품","initialPrice":45000,"baseVolatilityPerTick":0.0059},{"id":34,"name":"곰팡","ticker":"GOMP","sector":"생활/식품","initialPrice":28000,"baseVolatilityPerTick":0.0032},{"id":35,"name":"쓰윽쇼핑","ticker":"SSUK","sector":"생활/식품","initialPrice":150000,"baseVolatilityPerTick":0.0059},{"id":36,"name":"소년나라","ticker":"SNNA","sector":"생활/식품","initialPrice":3500,"baseVolatilityPerTick":0.0093},{"id":37,"name":"유신사","ticker":"YUSS","sector":"생활/식품","initialPrice":120000,"baseVolatilityPerTick":0.0059},{"id":38,"name":"블루라이너","ticker":"BLLN","sector":"교통/항공","initialPrice":28000,"baseVolatilityPerTick":0.0024},{"id":39,"name":"와이라노항공","ticker":"WRAR","sector":"교통/항공","initialPrice":22000,"baseVolatilityPerTick":0.0048},{"id":40,"name":"노라타항공","ticker":"NORA","sector":"교통/항공","initialPrice":12000,"baseVolatilityPerTick":0.014},{"id":41,"name":"ZWAY","ticker":"ZWAY","sector":"교통/항공","initialPrice":9500,"baseVolatilityPerTick":0.014},{"id":42,"name":"청바지에어","ticker":"JEAN","sector":"교통/항공","initialPrice":18000,"baseVolatilityPerTick":0.014},{"id":43,"name":"광속고속철도","ticker":"GSRW","sector":"교통/항공","initialPrice":45000,"baseVolatilityPerTick":0.0048},{"id":44,"name":"서브웨이어","ticker":"SBWR","sector":"교통/항공","initialPrice":5000,"baseVolatilityPerTick":0.0048}];
@@ -1215,18 +1224,37 @@
             renderFilters();
             renderStockList();
             updateDisplay();
+            setupEventDelegation();
             startGameTimer();
+        }
+
+        // Setup Event Delegation
+        function setupEventDelegation() {
+            // Stock list click delegation
+            document.getElementById('stockList').addEventListener('click', (e) => {
+                const stockItem = e.target.closest('.stock-item');
+                if (stockItem) {
+                    const companyId = parseInt(stockItem.dataset.companyId);
+                    if (companyId) openStockDetail(companyId);
+                }
+            });
         }
 
         // Game Timer
         function startGameTimer() {
-            if (gameTimer) clearInterval(gameTimer);
-            
-            gameTimer = setInterval(() => {
-                if (!gameState.isPaused && !gameState.isClosed) {
-                    gameTick();
+            function gameLoop(timestamp) {
+                if (timestamp - lastTickTime >= TICK_INTERVAL) {
+                    if (!gameState.isPaused && !gameState.isClosed) {
+                        gameTick();
+                    }
+                    lastTickTime = timestamp;
                 }
-            }, 2000);
+                gameTimer = requestAnimationFrame(gameLoop);
+            }
+
+            if (gameTimer) cancelAnimationFrame(gameTimer);
+            lastTickTime = performance.now();
+            gameTimer = requestAnimationFrame(gameLoop);
         }
 
         function gameTick() {
@@ -1260,7 +1288,31 @@
                 gameState.market.marketMood += (Math.random() - 0.5) * 0.005;
                 gameState.market.marketMood = Math.max(-0.03, Math.min(0.03, gameState.market.marketMood));
 
-                gameState.market.companies.forEach(company => {
+                // Lazy price updates: only update prices for visible/needed stocks
+                const companiesToUpdate = new Set();
+
+                // Always update stocks in portfolio
+                gameState.portfolio.forEach(holding => {
+                    const company = gameState.market.companies.find(c => c.id === holding.companyId);
+                    if (company) companiesToUpdate.add(company);
+                });
+
+                // If stock modal is open, update that stock
+                if (currentStockId) {
+                    const company = gameState.market.companies.find(c => c.id === currentStockId);
+                    if (company) companiesToUpdate.add(company);
+                }
+
+                // If stocks panel is active, update visible stocks
+                if (document.getElementById('stocksPanel').classList.contains('active')) {
+                    const visibleCompanies = gameState.selectedSector === '전체' ?
+                        gameState.market.companies :
+                        gameState.market.companies.filter(c => c.sector === gameState.selectedSector);
+                    visibleCompanies.forEach(company => companiesToUpdate.add(company));
+                }
+
+                // Update all identified companies
+                companiesToUpdate.forEach(company => {
                     updatePrice(company);
                 });
             }
@@ -1351,32 +1403,64 @@
         // Render Stock List
         function renderStockList() {
             const container = document.getElementById('stockList');
-            const filtered = gameState.selectedSector === '전체' ? 
-                gameState.market.companies : 
+            const filtered = gameState.selectedSector === '전체' ?
+                gameState.market.companies :
                 gameState.market.companies.filter(c => c.sector === gameState.selectedSector);
-            
-            container.innerHTML = filtered.map(company => {
+
+            // Check if we need full re-render (sector change or initial render)
+            const existingItems = container.querySelectorAll('.stock-item');
+            const needsFullRender = existingItems.length !== filtered.length ||
+                                   (existingItems.length > 0 &&
+                                    parseInt(existingItems[0].dataset.companyId) !== filtered[0].id);
+
+            if (needsFullRender) {
+                // Full render when filter changes
+                container.innerHTML = filtered.map(company => {
+                    const price = gameState.market.prices[company.id];
+                    const prevClose = gameState.market.previousClosePrices[company.id];
+                    const change = ((price - prevClose) / prevClose * 100);
+                    const changeAmount = price - prevClose;
+
+                    const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+                    const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
+
+                    return `
+                        <div class="stock-item" data-company-id="${company.id}">
+                            <div class="stock-info">
+                                <div class="stock-name">${company.name}</div>
+                                <div class="stock-ticker">${company.ticker} · ${company.sector}</div>
+                            </div>
+                            <div class="stock-price">
+                                <div class="price" data-price></div>
+                                <div class="change" data-change></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Update only prices and changes (always runs)
+            filtered.forEach(company => {
+                const item = container.querySelector(`[data-company-id="${company.id}"]`);
+                if (!item) return;
+
                 const price = gameState.market.prices[company.id];
                 const prevClose = gameState.market.previousClosePrices[company.id];
                 const change = ((price - prevClose) / prevClose * 100);
                 const changeAmount = price - prevClose;
-                
+
                 const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
                 const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
-                
-                return `
-                    <div class="stock-item" onclick="openStockDetail(${company.id})">
-                        <div class="stock-info">
-                            <div class="stock-name">${company.name}</div>
-                            <div class="stock-ticker">${company.ticker} · ${company.sector}</div>
-                        </div>
-                        <div class="stock-price">
-                            <div class="price">${formatMoney(price)}</div>
-                            <div class="change ${changeClass}">${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+
+                const priceEl = item.querySelector('[data-price]');
+                const changeEl = item.querySelector('[data-change]');
+
+                if (priceEl) priceEl.textContent = formatMoney(price);
+                if (changeEl) {
+                    changeEl.textContent = `${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)`;
+                    changeEl.className = `change ${changeClass}`;
+                }
+            });
         }
 
         // Update Price
@@ -1396,14 +1480,14 @@
 
             const randomChange = (Math.random() - 0.5) * company.baseVolatilityPerTick * 2;
             const moodEffect = gameState.market.marketMood * 0.5;
-            
+
             let newsEffect = 0;
-            const activeNews = gameState.news.filter(n => {
-                if (n.scope === 'company' && n.targetId === company.id) return true;
-                if (n.scope === 'sector' && n.targetId === company.sector) return true;
-                if (n.scope === 'market') return true;
-                return false;
-            });
+            // Use cached news instead of filtering
+            const activeNews = [
+                ...(gameState.newsCache.company[company.id] || []),
+                ...(gameState.newsCache.sector[company.sector] || []),
+                ...gameState.newsCache.market
+            ];
 
             activeNews.forEach(news => {
                 if (news.timestampMinutes === gameState.timeMinutes) {
@@ -1440,6 +1524,29 @@
             if (candleHistory.length > 30) {
                 candleHistory.shift();
             }
+        }
+
+        // Update News Cache
+        function updateNewsCache() {
+            gameState.newsCache.company = {};
+            gameState.newsCache.sector = {};
+            gameState.newsCache.market = [];
+
+            gameState.news.forEach(n => {
+                if (n.scope === 'company') {
+                    if (!gameState.newsCache.company[n.targetId]) {
+                        gameState.newsCache.company[n.targetId] = [];
+                    }
+                    gameState.newsCache.company[n.targetId].push(n);
+                } else if (n.scope === 'sector') {
+                    if (!gameState.newsCache.sector[n.targetId]) {
+                        gameState.newsCache.sector[n.targetId] = [];
+                    }
+                    gameState.newsCache.sector[n.targetId].push(n);
+                } else if (n.scope === 'market') {
+                    gameState.newsCache.market.push(n);
+                }
+            });
         }
 
         // Generate News
@@ -1483,6 +1590,9 @@
 
             gameState.news.unshift(news);
             if (gameState.news.length > 50) gameState.news.pop();
+
+            // Update news cache
+            updateNewsCache();
         }
 
         function formatTime(minutes) {
@@ -1580,10 +1690,14 @@
         function renderMiniChart(candleHistory) {
             const container = document.getElementById('miniChart');
             const recentCandles = candleHistory.slice(-20);
-            
-            const allPrices = recentCandles.flatMap(c => [c.high, c.low]);
-            const min = Math.min(...allPrices);
-            const max = Math.max(...allPrices);
+
+            // Optimize min/max calculation without intermediate arrays
+            let min = Infinity;
+            let max = -Infinity;
+            for (const candle of recentCandles) {
+                if (candle.high > max) max = candle.high;
+                if (candle.low < min) min = candle.low;
+            }
             const range = max - min || 1;
             
             container.innerHTML = recentCandles.map(candle => {
@@ -1839,62 +1953,95 @@
         // Render Portfolio
         function renderPortfolio() {
             const container = document.getElementById('portfolioList');
-            
+
             if (gameState.portfolio.length === 0) {
                 container.innerHTML = '<div class="empty-state">보유 중인 주식이 없습니다</div>';
                 return;
             }
 
-            container.innerHTML = gameState.portfolio.map(holding => {
-                const company = gameState.market.companies.find(c => c.id === holding.companyId);
+            // Check if we need full re-render (portfolio composition changed)
+            const existingItems = container.querySelectorAll('.portfolio-item');
+            const portfolioIds = gameState.portfolio.map(h => h.companyId).sort().join(',');
+            const existingIds = Array.from(existingItems).map(el => el.dataset.companyId).sort().join(',');
+            const needsFullRender = portfolioIds !== existingIds;
+
+            if (needsFullRender) {
+                // Full render when holdings change
+                container.innerHTML = gameState.portfolio.map(holding => {
+                    const company = gameState.market.companies.find(c => c.id === holding.companyId);
+                    return `
+                        <div class="portfolio-item" data-company-id="${holding.companyId}">
+                            <div class="portfolio-header">
+                                <div>
+                                    <div class="portfolio-name">${company.name}</div>
+                                    <div class="portfolio-ticker">${company.ticker}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="portfolio-name" data-current-price></div>
+                                    <div class="portfolio-ticker" data-price-change></div>
+                                </div>
+                            </div>
+                            <div class="portfolio-grid">
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-label">보유 수량</div>
+                                    <div class="portfolio-value" data-qty></div>
+                                </div>
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-label">평균 단가</div>
+                                    <div class="portfolio-value" data-avg-cost></div>
+                                </div>
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-label">평가액</div>
+                                    <div class="portfolio-value" data-total-value></div>
+                                </div>
+                                <div class="portfolio-stat">
+                                    <div class="portfolio-label">손익</div>
+                                    <div class="portfolio-value" data-pnl></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Update values for each holding
+            gameState.portfolio.forEach(holding => {
+                const item = container.querySelector(`[data-company-id="${holding.companyId}"]`);
+                if (!item) return;
+
                 const currentPrice = gameState.market.prices[holding.companyId];
                 const prevClose = gameState.market.previousClosePrices[holding.companyId];
                 const change = ((currentPrice - prevClose) / prevClose * 100);
                 const changeAmount = currentPrice - prevClose;
                 const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
                 const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
-                
+
                 const totalValue = currentPrice * holding.qty;
                 const pnl = (currentPrice - holding.avgCost) * holding.qty;
                 const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
                 const pnlClass = pnl >= 0 ? 'positive' : 'negative';
 
-                return `
-                    <div class="portfolio-item">
-                        <div class="portfolio-header">
-                            <div>
-                                <div class="portfolio-name">${company.name}</div>
-                                <div class="portfolio-ticker">${company.ticker}</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div class="portfolio-name">${formatMoney(currentPrice)}</div>
-                                <div class="portfolio-ticker ${changeClass}">${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)</div>
-                            </div>
-                        </div>
-                        <div class="portfolio-grid">
-                            <div class="portfolio-stat">
-                                <div class="portfolio-label">보유 수량</div>
-                                <div class="portfolio-value">${holding.qty.toLocaleString()}주</div>
-                            </div>
-                            <div class="portfolio-stat">
-                                <div class="portfolio-label">평균 단가</div>
-                                <div class="portfolio-value">${formatMoney(holding.avgCost)}</div>
-                            </div>
-                            <div class="portfolio-stat">
-                                <div class="portfolio-label">평가액</div>
-                                <div class="portfolio-value">${formatMoney(totalValue)}</div>
-                            </div>
-                            <div class="portfolio-stat">
-                                <div class="portfolio-label">손익</div>
-                                <div class="portfolio-value ${pnlClass}">
-                                    ${formatMoney(pnl)}<br>
-                                    <span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+                // Update dynamic values
+                const priceEl = item.querySelector('[data-current-price]');
+                const changeEl = item.querySelector('[data-price-change]');
+                const qtyEl = item.querySelector('[data-qty]');
+                const avgCostEl = item.querySelector('[data-avg-cost]');
+                const totalValueEl = item.querySelector('[data-total-value]');
+                const pnlEl = item.querySelector('[data-pnl]');
+
+                if (priceEl) priceEl.textContent = formatMoney(currentPrice);
+                if (changeEl) {
+                    changeEl.textContent = `${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)`;
+                    changeEl.className = `portfolio-ticker ${changeClass}`;
+                }
+                if (qtyEl) qtyEl.textContent = holding.qty.toLocaleString() + '주';
+                if (avgCostEl) avgCostEl.textContent = formatMoney(holding.avgCost);
+                if (totalValueEl) totalValueEl.textContent = formatMoney(totalValue);
+                if (pnlEl) {
+                    pnlEl.innerHTML = `${formatMoney(pnl)}<br><span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
+                    pnlEl.className = `portfolio-value ${pnlClass}`;
+                }
+            });
         }
 
         // Render News
@@ -1924,13 +2071,22 @@
 
         // Show Toast
         function showToast(message) {
+            // Limit number of active toasts
+            if (activeToasts.length >= MAX_TOASTS) {
+                const oldestToast = activeToasts.shift();
+                oldestToast.remove();
+            }
+
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.textContent = message;
             document.body.appendChild(toast);
-            
+            activeToasts.push(toast);
+
             setTimeout(() => {
                 toast.remove();
+                const index = activeToasts.indexOf(toast);
+                if (index > -1) activeToasts.splice(index, 1);
             }, 2500);
         }
 
