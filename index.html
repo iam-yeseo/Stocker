@@ -1165,6 +1165,8 @@
         let confirmCallback = null;
         let numpadValue = '';
         let numpadMode = 'trade'; // 'trade' or 'transfer'
+        let lastTickTime = 0;
+        const TICK_INTERVAL = 2000; // 2 seconds
 
         // Company Data (변동성 1/3로 감소)
         const companyData = [{"id":1,"name":"바나나","ticker":"BANN","sector":"테크/IT","initialPrice":85000,"baseVolatilityPerTick":0.0022},{"id":2,"name":"샘 솔루션","ticker":"SSOL","sector":"테크/IT","initialPrice":72000,"baseVolatilityPerTick":0.0022},{"id":3,"name":"소미텍","ticker":"SOMI","sector":"테크/IT","initialPrice":125000,"baseVolatilityPerTick":0.0022},{"id":4,"name":"서니","ticker":"SUNY","sector":"테크/IT","initialPrice":45000,"baseVolatilityPerTick":0.0044},{"id":5,"name":"흐웨이","ticker":"HWEI","sector":"테크/IT","initialPrice":32000,"baseVolatilityPerTick":0.0044},{"id":6,"name":"Cloz AI","ticker":"CLZA","sector":"테크/IT","initialPrice":150000,"baseVolatilityPerTick":0.0081},{"id":7,"name":"루트 테크놀로지","ticker":"RRTN","sector":"테크/IT","initialPrice":58000,"baseVolatilityPerTick":0.0128},{"id":8,"name":"ZPT","ticker":"ZPTT","sector":"테크/IT","initialPrice":210000,"baseVolatilityPerTick":0.0081},{"id":9,"name":"모르모트제약","ticker":"MRMT","sector":"바이오/제약","initialPrice":120000,"baseVolatilityPerTick":0.0117},{"id":10,"name":"무한제약","ticker":"MUHN","sector":"바이오/제약","initialPrice":88000,"baseVolatilityPerTick":0.0117},{"id":11,"name":"HBM 바이오","ticker":"HBMB","sector":"바이오/제약","initialPrice":45000,"baseVolatilityPerTick":0.0187},{"id":12,"name":"롱헤어연구소","ticker":"LHRL","sector":"바이오/제약","initialPrice":23000,"baseVolatilityPerTick":0.0187},{"id":13,"name":"안주거제약","ticker":"AZGB","sector":"바이오/제약","initialPrice":65000,"baseVolatilityPerTick":0.0187},{"id":14,"name":"한대자동차","ticker":"HAND","sector":"자동차/에너지","initialPrice":190000,"baseVolatilityPerTick":0.002},{"id":15,"name":"기어자동차","ticker":"GEAR","sector":"자동차/에너지","initialPrice":85000,"baseVolatilityPerTick":0.002},{"id":16,"name":"한국자동차","ticker":"HGCA","sector":"자동차/에너지","initialPrice":12000,"baseVolatilityPerTick":0.002},{"id":17,"name":"인도오일","ticker":"INDO","sector":"자동차/에너지","initialPrice":68000,"baseVolatilityPerTick":0.004},{"id":18,"name":"만슬라오일","ticker":"MSLO","sector":"자동차/에너지","initialPrice":110000,"baseVolatilityPerTick":0.004},{"id":19,"name":"호르몬플라스틱","ticker":"HMPL","sector":"자동차/에너지","initialPrice":150000,"baseVolatilityPerTick":0.004},{"id":20,"name":"두대중공업","ticker":"DDHV","sector":"자동차/에너지","initialPrice":18000,"baseVolatilityPerTick":0.002},{"id":21,"name":"무력중공업","ticker":"MRHV","sector":"자동차/에너지","initialPrice":22000,"baseVolatilityPerTick":0.0073},{"id":22,"name":"애플릭스","ticker":"APLX","sector":"엔터테인먼트","initialPrice":420000,"baseVolatilityPerTick":0.0028},{"id":23,"name":"티브잉","ticker":"TVNG","sector":"엔터테인먼트","initialPrice":85000,"baseVolatilityPerTick":0.0103},{"id":24,"name":"사과TV","ticker":"APTV","sector":"엔터테인먼트","initialPrice":125000,"baseVolatilityPerTick":0.0056},{"id":25,"name":"PJY엔터테인먼트","ticker":"PJYE","sector":"엔터테인먼트","initialPrice":68000,"baseVolatilityPerTick":0.0103},{"id":26,"name":"MS엔터테인먼트","ticker":"MSET","sector":"엔터테인먼트","initialPrice":150000,"baseVolatilityPerTick":0.0103},{"id":27,"name":"하이파이브","ticker":"HIFI","sector":"엔터테인먼트","initialPrice":250000,"baseVolatilityPerTick":0.0056},{"id":28,"name":"22세기 영화사","ticker":"EEMV","sector":"엔터테인먼트","initialPrice":8000,"baseVolatilityPerTick":0.0163},{"id":29,"name":"브라더스","ticker":"BRTS","sector":"엔터테인먼트","initialPrice":5500,"baseVolatilityPerTick":0.0163},{"id":30,"name":"캘리포니아무비","ticker":"CLMV","sector":"엔터테인먼트","initialPrice":12000,"baseVolatilityPerTick":0.0163},{"id":31,"name":"마마존","ticker":"MMZN","sector":"생활/식품","initialPrice":180000,"baseVolatilityPerTick":0.0016},{"id":32,"name":"코스트카","ticker":"CSTK","sector":"생활/식품","initialPrice":350000,"baseVolatilityPerTick":0.0016},{"id":33,"name":"위마트","ticker":"WEMA","sector":"생활/식품","initialPrice":45000,"baseVolatilityPerTick":0.0059},{"id":34,"name":"곰팡","ticker":"GOMP","sector":"생활/식품","initialPrice":28000,"baseVolatilityPerTick":0.0032},{"id":35,"name":"쓰윽쇼핑","ticker":"SSUK","sector":"생활/식품","initialPrice":150000,"baseVolatilityPerTick":0.0059},{"id":36,"name":"소년나라","ticker":"SNNA","sector":"생활/식품","initialPrice":3500,"baseVolatilityPerTick":0.0093},{"id":37,"name":"유신사","ticker":"YUSS","sector":"생활/식품","initialPrice":120000,"baseVolatilityPerTick":0.0059},{"id":38,"name":"블루라이너","ticker":"BLLN","sector":"교통/항공","initialPrice":28000,"baseVolatilityPerTick":0.0024},{"id":39,"name":"와이라노항공","ticker":"WRAR","sector":"교통/항공","initialPrice":22000,"baseVolatilityPerTick":0.0048},{"id":40,"name":"노라타항공","ticker":"NORA","sector":"교통/항공","initialPrice":12000,"baseVolatilityPerTick":0.014},{"id":41,"name":"ZWAY","ticker":"ZWAY","sector":"교통/항공","initialPrice":9500,"baseVolatilityPerTick":0.014},{"id":42,"name":"청바지에어","ticker":"JEAN","sector":"교통/항공","initialPrice":18000,"baseVolatilityPerTick":0.014},{"id":43,"name":"광속고속철도","ticker":"GSRW","sector":"교통/항공","initialPrice":45000,"baseVolatilityPerTick":0.0048},{"id":44,"name":"서브웨이어","ticker":"SBWR","sector":"교통/항공","initialPrice":5000,"baseVolatilityPerTick":0.0048}];
@@ -1220,13 +1222,19 @@
 
         // Game Timer
         function startGameTimer() {
-            if (gameTimer) clearInterval(gameTimer);
-            
-            gameTimer = setInterval(() => {
-                if (!gameState.isPaused && !gameState.isClosed) {
-                    gameTick();
+            function gameLoop(timestamp) {
+                if (timestamp - lastTickTime >= TICK_INTERVAL) {
+                    if (!gameState.isPaused && !gameState.isClosed) {
+                        gameTick();
+                    }
+                    lastTickTime = timestamp;
                 }
-            }, 2000);
+                gameTimer = requestAnimationFrame(gameLoop);
+            }
+
+            if (gameTimer) cancelAnimationFrame(gameTimer);
+            lastTickTime = performance.now();
+            gameTimer = requestAnimationFrame(gameLoop);
         }
 
         function gameTick() {
