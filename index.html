@@ -16,8 +16,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0a0e27;
-            color: #e0e0e0;
+            background: #f5f5f5;
+            color: #1a1a1a;
             overflow-x: hidden;
             padding-bottom: 80px;
             user-select: none;
@@ -37,10 +37,11 @@
             top: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: #ffffff;
             padding: 12px 15px;
             z-index: 100;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+            border-bottom: 1px solid #e5e5e5;
+            box-shadow: none;
         }
 
         .header-content {
@@ -54,7 +55,7 @@
         .logo {
             font-size: 20px;
             font-weight: 800;
-            color: white;
+            color: #1a1a1a;
         }
 
         .time-controls {
@@ -64,18 +65,19 @@
         }
 
         .time-info {
-            background: rgba(255, 255, 255, 0.2);
+            background: #f0f0f0;
             padding: 6px 12px;
             border-radius: 8px;
             font-weight: 600;
             font-size: 14px;
-            min-width: 110px;
+            min-width: 130px;
             text-align: center;
+            color: #333;
         }
 
         .status-badge {
-            background: rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
             padding: 6px 12px;
             border-radius: 8px;
             font-weight: 600;
@@ -83,13 +85,13 @@
         }
 
         .status-badge.open {
-            background: rgba(16, 185, 129, 0.3);
-            color: #6ee7b7;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
         }
 
         .btn-control {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: #f0f0f0;
+            color: #333;
             border: none;
             padding: 8px 12px;
             border-radius: 8px;
@@ -100,6 +102,7 @@
 
         .btn-control:active {
             transform: scale(0.95);
+            background: #e0e0e0;
         }
 
         .btn-next-day {
@@ -115,36 +118,77 @@
 
         /* Dashboard */
         .dashboard {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 15px;
         }
 
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
         .stat-card {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            padding: 15px;
+            background: #ffffff;
+            padding: 16px;
             border-radius: 12px;
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            border: 1px solid #e5e5e5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-card.cash-card {
+            border-left: 4px solid #10b981;
+        }
+
+        .stat-card.brokerage-card {
+            border-left: 4px solid #3b82f6;
         }
 
         .stat-label {
-            font-size: 11px;
-            color: #94a3b8;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 13px;
+            color: #888888;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .stat-value {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
-            color: white;
+            color: #1a1a1a;
             word-break: break-all;
         }
 
-        .positive { color: #10b981; }
-        .negative { color: #ef4444; }
+        .announcement-banner {
+            background: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .announcement-text {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .announcement-text strong {
+            color: #1a1a1a;
+        }
+
+        .announcement-arrow {
+            color: #999;
+            font-size: 18px;
+        }
+
+        .positive { color: #ef4444; }
+        .negative { color: #3b82f6; }
 
         /* Content Panels */
         .content-panel {
@@ -171,58 +215,86 @@
         }
 
         .filter-btn {
-            background: #334155;
-            color: #e0e0e0;
+            background: #e8e8e8;
+            color: #666;
             border: none;
             padding: 8px 14px;
-            border-radius: 6px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 13px;
             white-space: nowrap;
             flex-shrink: 0;
+            font-weight: 500;
         }
 
         .filter-btn.active {
-            background: #3b82f6;
+            background: #2196F3;
             color: white;
         }
 
         .stock-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 0;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
         }
 
         .stock-item {
-            background: #1e293b;
-            padding: 15px;
-            border-radius: 12px;
+            background: #ffffff;
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
             transition: all 0.2s;
-            border: 1px solid transparent;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .stock-item:last-child {
+            border-bottom: none;
         }
 
         .stock-item:active {
-            background: #334155;
-            border-color: #3b82f6;
+            background: #f8f8f8;
         }
 
         .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .stock-logo {
+            width: 40px;
+            height: 40px;
+            background: #e8e8e8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #999;
+            flex-shrink: 0;
+        }
+
+        .stock-details {
             flex: 1;
         }
 
         .stock-name {
             font-weight: 600;
             font-size: 15px;
+            color: #1a1a1a;
             margin-bottom: 4px;
         }
 
         .stock-ticker {
-            font-size: 11px;
-            color: #94a3b8;
+            font-size: 12px;
+            color: #888888;
         }
 
         .stock-price {
@@ -234,6 +306,7 @@
             font-size: 16px;
             font-weight: 700;
             margin-bottom: 4px;
+            color: #1a1a1a;
         }
 
         .change {
@@ -249,7 +322,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             align-items: flex-end;
         }
@@ -259,7 +332,7 @@
         }
 
         .modal-content {
-            background: #1e293b;
+            background: #ffffff;
             border-radius: 20px 20px 0 0;
             width: 100%;
             max-height: 90vh;
@@ -278,20 +351,20 @@
 
         .modal-header {
             padding: 20px;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid #f0f0f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
-            background: #1e293b;
+            background: #ffffff;
             z-index: 10;
         }
 
         .modal-close {
             background: none;
             border: none;
-            color: #94a3b8;
+            color: #999;
             font-size: 28px;
             cursor: pointer;
             width: 40px;
@@ -303,7 +376,7 @@
         }
 
         .modal-close:active {
-            background: #334155;
+            background: #f0f0f0;
         }
 
         .modal-body {
@@ -318,10 +391,11 @@
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 8px;
+            color: #1a1a1a;
         }
 
         .mini-chart {
-            background: #0f172a;
+            background: #f8f8f8;
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 20px;
@@ -343,7 +417,7 @@
 
         .candle-wick {
             width: 1px;
-            background: #64748b;
+            background: #999;
             position: absolute;
             bottom: 0;
         }
@@ -357,17 +431,17 @@
         }
 
         .candle-body.up {
-            background: #10b981;
-            border: 1px solid #10b981;
-        }
-
-        .candle-body.down {
             background: #ef4444;
             border: 1px solid #ef4444;
         }
 
+        .candle-body.down {
+            background: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+
         .holding-info {
-            background: #0f172a;
+            background: #f8f8f8;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -378,10 +452,11 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 14px;
+            color: #333;
         }
 
         .trade-section {
-            background: #0f172a;
+            background: #f8f8f8;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -394,10 +469,10 @@
 
         .disabled-message {
             text-align: center;
-            color: #94a3b8;
+            color: #888;
             font-size: 14px;
             padding: 20px;
-            background: #0f172a;
+            background: #f8f8f8;
             border-radius: 8px;
             margin-bottom: 20px;
         }
@@ -410,11 +485,12 @@
         }
 
         .trade-info-label {
-            color: #94a3b8;
+            color: #888;
         }
 
         .trade-info-value {
             font-weight: 600;
+            color: #333;
         }
 
         .input-group {
@@ -424,15 +500,15 @@
         .input-group label {
             display: block;
             font-size: 12px;
-            color: #94a3b8;
+            color: #888;
             margin-bottom: 6px;
         }
 
         .input-display {
             width: 100%;
-            background: #1e293b;
-            border: 2px solid #334155;
-            color: white;
+            background: #ffffff;
+            border: 2px solid #e5e5e5;
+            color: #1a1a1a;
             padding: 12px;
             border-radius: 8px;
             font-size: 20px;
@@ -447,16 +523,17 @@
         }
 
         .input-display.empty {
-            color: #64748b;
+            color: #ccc;
             font-size: 16px;
             font-weight: 400;
         }
 
         .trade-estimate {
-            background: #0f172a;
+            background: #ffffff;
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
+            border: 1px solid #e5e5e5;
         }
 
         .estimate-row {
@@ -464,14 +541,16 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 13px;
+            color: #666;
         }
 
         .estimate-row:last-child {
             margin-bottom: 0;
             padding-top: 8px;
-            border-top: 1px solid #334155;
+            border-top: 1px solid #f0f0f0;
             font-weight: 600;
             font-size: 15px;
+            color: #333;
         }
 
         .trade-buttons {
@@ -496,12 +575,12 @@
         }
 
         .btn-buy {
-            background: #10b981;
+            background: #ef4444;
             color: white;
         }
 
         .btn-sell {
-            background: #ef4444;
+            background: #3b82f6;
             color: white;
         }
 
@@ -518,7 +597,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 2000;
             align-items: flex-end;
         }
@@ -528,91 +607,159 @@
         }
 
         .numpad-content {
-            background: #1e293b;
+            background: #ffffff;
             border-radius: 20px 20px 0 0;
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 24px 20px;
             animation: slideUp 0.3s ease;
         }
 
         .numpad-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .numpad-title {
-            font-size: 18px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .numpad-display-area {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .numpad-input-text {
+            font-size: 28px;
+            color: #cccccc;
+            margin-bottom: 8px;
+        }
+
+        .numpad-input-text.has-value {
+            color: #333333;
             font-weight: 600;
         }
 
-        .numpad-display {
-            background: #0f172a;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            text-align: right;
-            font-size: 32px;
-            font-weight: 700;
-            min-height: 70px;
-            color: white;
+        .numpad-sub-text {
+            font-size: 14px;
+            color: #999999;
         }
 
-        .numpad-display.empty {
-            color: #64748b;
-            font-size: 20px;
+        .numpad-info {
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: 8px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .quick-btn {
+            flex: 1;
+            padding: 10px 4px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #ffffff;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:active {
+            background: #f5f5f5;
+            transform: scale(0.95);
         }
 
         .numpad-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            padding: 16px 0;
         }
 
         .numpad-btn {
-            background: #334155;
-            color: white;
+            background: transparent;
             border: none;
             padding: 20px;
-            border-radius: 12px;
             font-size: 24px;
-            font-weight: 600;
+            font-weight: 500;
+            color: #333;
             cursor: pointer;
+            border-radius: 12px;
             transition: all 0.2s;
         }
 
         .numpad-btn:active {
-            background: #475569;
+            background: #f0f0f0;
             transform: scale(0.95);
         }
 
-        .numpad-btn.zero {
-            grid-column: span 2;
+        .numpad-btn.text-btn {
+            font-size: 14px;
+            color: #666;
         }
 
         .numpad-btn.backspace {
-            background: #ef4444;
-            font-size: 20px;
+            color: #666;
+        }
+
+        .numpad-actions {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            padding-top: 16px;
+        }
+
+        .btn-numpad-cancel {
+            background: #f5f5f5;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .btn-numpad-cancel:active {
+            background: #e8e8e8;
         }
 
         .btn-numpad-confirm {
-            width: 100%;
-            background: #3b82f6;
-            color: white;
+            background: #2196F3;
             border: none;
-            padding: 16px;
             border-radius: 12px;
+            padding: 16px;
             font-size: 16px;
             font-weight: 600;
+            color: #ffffff;
             cursor: pointer;
         }
 
         .btn-numpad-confirm:active {
-            background: #2563eb;
+            background: #1976D2;
         }
 
         /* News */
@@ -623,9 +770,10 @@
         }
 
         .news-item {
-            background: #1e293b;
+            background: #ffffff;
             padding: 15px;
             border-radius: 12px;
+            border: 1px solid #e5e5e5;
             border-left: 4px solid #3b82f6;
         }
 
@@ -638,18 +786,19 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 11px;
-            color: #94a3b8;
+            color: #888;
         }
 
         .news-title {
             font-weight: 600;
             font-size: 14px;
             margin-bottom: 8px;
+            color: #1a1a1a;
         }
 
         .news-description {
             font-size: 13px;
-            color: #94a3b8;
+            color: #888;
             line-height: 1.5;
         }
 
@@ -663,13 +812,13 @@
         }
 
         .impact-positive {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
         }
 
         .impact-negative {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
         }
 
         /* Portfolio */
@@ -680,9 +829,10 @@
         }
 
         .portfolio-item {
-            background: #1e293b;
+            background: #ffffff;
             padding: 15px;
             border-radius: 12px;
+            border: 1px solid #e5e5e5;
         }
 
         .portfolio-header {
@@ -695,11 +845,12 @@
         .portfolio-name {
             font-weight: 600;
             font-size: 15px;
+            color: #1a1a1a;
         }
 
         .portfolio-ticker {
             font-size: 11px;
-            color: #94a3b8;
+            color: #888;
         }
 
         .portfolio-grid {
@@ -709,34 +860,37 @@
         }
 
         .portfolio-stat {
-            background: #0f172a;
+            background: #f8f8f8;
             padding: 10px;
             border-radius: 8px;
         }
 
         .portfolio-label {
             font-size: 10px;
-            color: #94a3b8;
+            color: #888;
             margin-bottom: 4px;
         }
 
         .portfolio-value {
             font-weight: 600;
             font-size: 13px;
+            color: #333;
         }
 
         /* Account */
         .account-section {
-            background: #1e293b;
+            background: #ffffff;
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 15px;
+            border: 1px solid #e5e5e5;
         }
 
         .section-title {
             font-weight: 600;
             font-size: 16px;
             margin-bottom: 15px;
+            color: #1a1a1a;
         }
 
         .btn-full {
@@ -769,7 +923,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -781,7 +935,7 @@
         }
 
         .confirm-content {
-            background: #1e293b;
+            background: #ffffff;
             border-radius: 16px;
             padding: 24px;
             max-width: 350px;
@@ -804,10 +958,11 @@
             font-weight: 600;
             font-size: 18px;
             margin-bottom: 12px;
+            color: #1a1a1a;
         }
 
         .confirm-message {
-            color: #94a3b8;
+            color: #666;
             font-size: 14px;
             margin-bottom: 20px;
             line-height: 1.5;
@@ -828,8 +983,8 @@
         }
 
         .btn-cancel {
-            background: #334155;
-            color: white;
+            background: #f5f5f5;
+            color: #666;
         }
 
         .btn-ok {
@@ -843,12 +998,12 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: #1e293b;
-            border-top: 1px solid #334155;
+            background: #ffffff;
+            border-top: 1px solid #e5e5e5;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             z-index: 100;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .gnb-item {
@@ -858,7 +1013,7 @@
             transition: all 0.2s;
             border: none;
             background: none;
-            color: #94a3b8;
+            color: #999999;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -866,11 +1021,11 @@
         }
 
         .gnb-item:active {
-            background: #334155;
+            background: #f8f8f8;
         }
 
         .gnb-item.active {
-            color: #3b82f6;
+            color: #2196F3;
         }
 
         .gnb-icon {
@@ -888,11 +1043,11 @@
             bottom: 100px;
             left: 50%;
             transform: translateX(-50%);
-            background: #1e293b;
+            background: #333333;
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             z-index: 2000;
             animation: slideIn 0.3s ease;
             max-width: 90%;
@@ -912,7 +1067,7 @@
 
         /* Empty State */
         .empty-state {
-            color: #94a3b8;
+            color: #888;
             text-align: center;
             padding: 40px 20px;
             font-size: 14px;
@@ -924,11 +1079,11 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #0f172a;
+            background: #f5f5f5;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #ddd;
             border-radius: 3px;
         }
     </style>
@@ -937,9 +1092,9 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <div class="logo">💹 STOCKER</div>
+            <div class="logo">STOCKER</div>
             <div class="time-controls">
-                <div class="time-info" id="timeDisplay">08:00</div>
+                <div class="time-info" id="timeDisplay">1일 08:00</div>
                 <button class="btn-control" id="pauseBtn" onclick="togglePause()">⏸️</button>
                 <button class="btn-next-day" id="nextDayBtn" onclick="nextDay()" style="display: none;">다음 날</button>
             </div>
@@ -950,28 +1105,21 @@
     <div class="container">
         <!-- Dashboard -->
         <div class="dashboard">
-            <div class="stat-card">
-                <div class="stat-label">Day</div>
-                <div class="stat-value" id="dayDisplay">1</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">총 자산</div>
-                <div class="stat-value" id="totalAssets">1,000,000 ₩</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">현금</div>
-                <div class="stat-value" id="cashDisplay">1,000,000 ₩</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">예수금</div>
-                <div class="stat-value" id="brokerageDisplay">0 ₩</div>
-            </div>
-            <div class="stat-card" style="grid-column: 1 / -1;">
-                <div class="stat-label">시장 상태</div>
-                <div class="stat-value" id="marketStatus">
-                    <span class="status-badge" id="statusBadge">개장 전</span>
-                    <span id="marketMood" style="margin-left: 10px; font-size: 16px;">중립 ⚪</span>
+            <div class="dashboard-cards">
+                <div class="stat-card cash-card">
+                    <div class="stat-label">💵 현금</div>
+                    <div class="stat-value" id="cashDisplay">1,000,000원</div>
                 </div>
+                <div class="stat-card brokerage-card">
+                    <div class="stat-label">💰 예수금</div>
+                    <div class="stat-value" id="brokerageDisplay">0원</div>
+                </div>
+            </div>
+            <div class="announcement-banner">
+                <div class="announcement-text">
+                    <strong>공지:</strong> 증권거래소 개장 시간은 오전 9시입니다.
+                </div>
+                <div class="announcement-arrow">›</div>
             </div>
         </div>
 
@@ -1017,8 +1165,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <h2 id="modalStockName" style="font-size: 20px; margin-bottom: 4px;"></h2>
-                    <div id="modalStockTicker" style="color: #94a3b8; font-size: 12px;"></div>
+                    <h2 id="modalStockName" style="font-size: 20px; margin-bottom: 4px; color: #1a1a1a;"></h2>
+                    <div id="modalStockTicker" style="color: #888; font-size: 12px;"></div>
                 </div>
                 <button class="modal-close" onclick="closeModal()">×</button>
             </div>
@@ -1039,13 +1187,13 @@
                 <div class="trade-section" id="tradeSection">
                     <div class="trade-info-row">
                         <span class="trade-info-label">예수금 잔고</span>
-                        <span class="trade-info-value" id="tradeBalance">0 ₩</span>
+                        <span class="trade-info-value" id="tradeBalance">0원</span>
                     </div>
                     <div class="trade-info-row">
                         <span class="trade-info-label">최대 구매 가능</span>
                         <span class="trade-info-value" id="maxBuyQty">0주</span>
                     </div>
-                    
+
                     <div class="input-group">
                         <label>거래 수량</label>
                         <div class="input-display empty" id="qtyDisplay" onclick="showNumpad()">수량 입력</div>
@@ -1072,7 +1220,7 @@
                     </div>
                 </div>
 
-                <h3 style="margin: 20px 0 10px; font-size: 16px;">관련 뉴스</h3>
+                <h3 style="margin: 20px 0 10px; font-size: 16px; color: #1a1a1a;">관련 뉴스</h3>
                 <div id="modalNewsList" class="news-list"></div>
             </div>
         </div>
@@ -1082,10 +1230,33 @@
     <div id="numpadModal" class="numpad-modal">
         <div class="numpad-content">
             <div class="numpad-header">
-                <div class="numpad-title">수량 입력</div>
-                <button class="modal-close" onclick="closeNumpad()">×</button>
+                <span class="numpad-title" id="numpadTitle">구매 수량</span>
             </div>
-            <div class="numpad-display empty" id="numpadDisplay">0</div>
+
+            <div class="numpad-display-area">
+                <div class="numpad-input-text" id="numpadDisplay">구매 수량을 입력해주세요</div>
+                <div class="numpad-sub-text" id="numpadSubText">예상 금액</div>
+            </div>
+
+            <div class="numpad-info" id="numpadInfo">
+                <div class="info-row">
+                    <span>주문 가능 금액</span>
+                    <span class="info-value" id="numpadAvailableAmount">0원</span>
+                </div>
+                <div class="info-row">
+                    <span>구매 가능 수량</span>
+                    <span class="info-value" id="numpadMaxQty">최대 0주</span>
+                </div>
+            </div>
+
+            <div class="quick-buttons" id="quickButtons">
+                <button class="quick-btn" onclick="addQuickAmount(10)">+10</button>
+                <button class="quick-btn" onclick="addQuickAmount(100)">+100</button>
+                <button class="quick-btn" onclick="addQuickAmount(1000)">+1,000</button>
+                <button class="quick-btn" onclick="addQuickAmount(10000)">+10,000</button>
+                <button class="quick-btn" onclick="addQuickAmount('max')">최대</button>
+            </div>
+
             <div class="numpad-grid">
                 <button class="numpad-btn" onclick="addDigit('1')">1</button>
                 <button class="numpad-btn" onclick="addDigit('2')">2</button>
@@ -1096,10 +1267,15 @@
                 <button class="numpad-btn" onclick="addDigit('7')">7</button>
                 <button class="numpad-btn" onclick="addDigit('8')">8</button>
                 <button class="numpad-btn" onclick="addDigit('9')">9</button>
-                <button class="numpad-btn zero" onclick="addDigit('0')">0</button>
-                <button class="numpad-btn backspace" onclick="backspace()">←</button>
+                <button class="numpad-btn text-btn" onclick="clearNumpad()">전체삭제</button>
+                <button class="numpad-btn" onclick="addDigit('0')">0</button>
+                <button class="numpad-btn backspace" onclick="backspace()">⌫</button>
             </div>
-            <button class="btn-numpad-confirm" onclick="confirmNumpad()">확인</button>
+
+            <div class="numpad-actions">
+                <button class="btn-numpad-cancel" onclick="closeNumpad()">취소</button>
+                <button class="btn-numpad-confirm" id="numpadConfirmBtn" onclick="confirmNumpad()">구매하기</button>
+            </div>
         </div>
     </div>
 
@@ -1118,8 +1294,12 @@
     <!-- GNB -->
     <div class="gnb">
         <button class="gnb-item active" onclick="switchTab('stocks')">
+            <div class="gnb-icon">🏠</div>
+            <div class="gnb-label">증권거래소</div>
+        </button>
+        <button class="gnb-item" onclick="switchTab('invest')">
             <div class="gnb-icon">📊</div>
-            <div class="gnb-label">거래소</div>
+            <div class="gnb-label">투자</div>
         </button>
         <button class="gnb-item" onclick="switchTab('portfolio')">
             <div class="gnb-icon">💼</div>
@@ -1127,15 +1307,11 @@
         </button>
         <button class="gnb-item" onclick="switchTab('news')">
             <div class="gnb-icon">📰</div>
-            <div class="gnb-label">뉴스</div>
-        </button>
-        <button class="gnb-item" onclick="switchTab('invest')">
-            <div class="gnb-icon">🏠</div>
-            <div class="gnb-label">투자</div>
+            <div class="gnb-label">소식</div>
         </button>
         <button class="gnb-item" onclick="switchTab('account')">
-            <div class="gnb-icon">💳</div>
-            <div class="gnb-label">내 계좌</div>
+            <div class="gnb-icon">👤</div>
+            <div class="gnb-label">내 정보</div>
         </button>
     </div>
 
@@ -1209,7 +1385,7 @@
                 ...c,
                 newsTimes: []
             }));
-            
+
             gameState.market.companies.forEach(company => {
                 gameState.market.prices[company.id] = company.initialPrice;
                 gameState.market.previousClosePrices[company.id] = company.initialPrice;
@@ -1268,12 +1444,12 @@
             if (gameState.timeMinutes > 930) {
                 gameState.isClosed = true;
                 gameState.timeMinutes = 930;
-                
+
                 // 전일 종가 저장
                 gameState.market.companies.forEach(company => {
                     gameState.market.previousClosePrices[company.id] = gameState.market.prices[company.id];
                 });
-                
+
                 document.getElementById('nextDayBtn').style.display = 'block';
                 document.getElementById('pauseBtn').style.display = 'none';
                 showToast('🔔 거래소 폐장');
@@ -1343,34 +1519,11 @@
         function updateDisplay() {
             const hours = Math.floor(gameState.timeMinutes / 60);
             const minutes = gameState.timeMinutes % 60;
-            const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-            
-            document.getElementById('timeDisplay').textContent = gameState.isClosed ? '거래소 폐장' : timeStr;
-            document.getElementById('dayDisplay').textContent = gameState.day;
-            document.getElementById('cashDisplay').textContent = formatMoney(gameState.cash);
-            document.getElementById('brokerageDisplay').textContent = formatMoney(gameState.brokerageCash);
-            
-            const stockValue = calculateStockValue();
-            const totalAssets = gameState.cash + gameState.brokerageCash + stockValue;
-            document.getElementById('totalAssets').textContent = formatMoney(totalAssets);
-            
-            const badge = document.getElementById('statusBadge');
-            const isOpen = gameState.timeMinutes >= 540 && gameState.timeMinutes <= 930;
-            
-            if (gameState.isClosed) {
-                badge.textContent = '폐장';
-                badge.className = 'status-badge';
-            } else if (isOpen) {
-                badge.textContent = '개장';
-                badge.className = 'status-badge open';
-            } else {
-                badge.textContent = '개장 전';
-                badge.className = 'status-badge';
-            }
-            
-            const moodText = gameState.market.marketMood > 0.01 ? '낙관적 🟢' :
-                           gameState.market.marketMood < -0.01 ? '비관적 🔴' : '중립 ⚪';
-            document.getElementById('marketMood').textContent = moodText;
+            const timeStr = `${gameState.day}일 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+            document.getElementById('timeDisplay').textContent = gameState.isClosed ? `${gameState.day}일 폐장` : timeStr;
+            document.getElementById('cashDisplay').textContent = formatMoneyWon(gameState.cash);
+            document.getElementById('brokerageDisplay').textContent = formatMoneyWon(gameState.brokerageCash);
         }
 
         function calculateStockValue() {
@@ -1384,10 +1537,14 @@
             return new Intl.NumberFormat('ko-KR').format(Math.floor(amount)) + ' ₩';
         }
 
+        function formatMoneyWon(amount) {
+            return new Intl.NumberFormat('ko-KR').format(Math.floor(amount)) + '원';
+        }
+
         // Render Filters
         function renderFilters() {
             const sectors = ['전체', ...new Set(companyData.map(c => c.sector))];
-            document.getElementById('filterButtons').innerHTML = sectors.map(sector => 
+            document.getElementById('filterButtons').innerHTML = sectors.map(sector =>
                 `<button class="filter-btn ${sector === '전체' ? 'active' : ''}" onclick="filterSector('${sector}')">${sector}</button>`
             ).join('');
         }
@@ -1416,19 +1573,16 @@
             if (needsFullRender) {
                 // Full render when filter changes
                 container.innerHTML = filtered.map(company => {
-                    const price = gameState.market.prices[company.id];
-                    const prevClose = gameState.market.previousClosePrices[company.id];
-                    const change = ((price - prevClose) / prevClose * 100);
-                    const changeAmount = price - prevClose;
-
-                    const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-                    const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
+                    const firstLetter = company.name.charAt(0);
 
                     return `
                         <div class="stock-item" data-company-id="${company.id}">
                             <div class="stock-info">
-                                <div class="stock-name">${company.name}</div>
-                                <div class="stock-ticker">${company.ticker} · ${company.sector}</div>
+                                <div class="stock-logo">${firstLetter}</div>
+                                <div class="stock-details">
+                                    <div class="stock-name">${company.name}</div>
+                                    <div class="stock-ticker">${company.ticker}</div>
+                                </div>
                             </div>
                             <div class="stock-price">
                                 <div class="price" data-price></div>
@@ -1450,14 +1604,14 @@
                 const changeAmount = price - prevClose;
 
                 const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-                const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
+                const changeSymbol = change > 0 ? '+' : '';
 
                 const priceEl = item.querySelector('[data-price]');
                 const changeEl = item.querySelector('[data-change]');
 
-                if (priceEl) priceEl.textContent = formatMoney(price);
+                if (priceEl) priceEl.textContent = formatMoneyWon(price);
                 if (changeEl) {
-                    changeEl.textContent = `${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)`;
+                    changeEl.textContent = `${changeSymbol}${formatMoneyWon(changeAmount)} (${changeSymbol}${change.toFixed(2)}%)`;
                     changeEl.className = `change ${changeClass}`;
                 }
             });
@@ -1468,7 +1622,7 @@
             const currentPrice = gameState.market.prices[company.id];
             const candleHistory = gameState.market.candleHistory[company.id];
             const currentCandle = candleHistory[candleHistory.length - 1];
-            
+
             const decay = 180;
             let issueIndex = 0;
             company.newsTimes.forEach(newsTick => {
@@ -1493,7 +1647,7 @@
                 if (news.timestampMinutes === gameState.timeMinutes) {
                     newsEffect += news.impactNow;
                 }
-                
+
                 const ticksSinceNews = (gameState.timeMinutes - news.timestampMinutes) / 5;
                 if (ticksSinceNews > 0 && ticksSinceNews <= news.impactDuration) {
                     newsEffect += news.impactPerTick;
@@ -1502,14 +1656,14 @@
 
             const totalChange = randomChange + moodEffect + newsEffect;
             const newPrice = Math.max(100, Math.floor(currentPrice * (1 + totalChange)));
-            
+
             // Update candle data
             currentCandle.close = newPrice;
             currentCandle.high = Math.max(currentCandle.high, newPrice);
             currentCandle.low = Math.min(currentCandle.low, newPrice);
-            
+
             gameState.market.prices[company.id] = newPrice;
-            
+
             // Every 30 minutes (6 ticks), create new candle
             const ticksSinceOpen = (gameState.timeMinutes - 540) / 5;
             if (ticksSinceOpen > 0 && ticksSinceOpen % 6 === 0) {
@@ -1520,7 +1674,7 @@
                     close: newPrice
                 });
             }
-            
+
             if (candleHistory.length > 30) {
                 candleHistory.shift();
             }
@@ -1553,9 +1707,9 @@
         function generateNews() {
             const scopes = ['company', 'sector', 'market'];
             const scope = scopes[Math.floor(Math.random() * scopes.length)];
-            
+
             let targetId, targetName;
-            
+
             if (scope === 'company') {
                 const company = gameState.market.companies[Math.floor(Math.random() * gameState.market.companies.length)];
                 targetId = company.id;
@@ -1573,7 +1727,7 @@
 
             const templates = newsTemplates[scope];
             const template = templates[Math.floor(Math.random() * templates.length)];
-            
+
             const news = {
                 id: gameState.news.length + 1,
                 timestampMinutes: gameState.timeMinutes,
@@ -1609,25 +1763,25 @@
             const prevClose = gameState.market.previousClosePrices[companyId];
             const change = ((price - prevClose) / prevClose * 100);
             const changeAmount = price - prevClose;
-            
+
             document.getElementById('modalStockName').textContent = company.name;
             document.getElementById('modalStockTicker').textContent = `${company.ticker} · ${company.sector}`;
-            document.getElementById('modalStockPrice').textContent = formatMoney(price);
-            
+            document.getElementById('modalStockPrice').textContent = formatMoneyWon(price);
+
             const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-            const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
-            document.getElementById('modalStockChange').innerHTML = 
-                `<span class="${changeClass}">${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)</span>`;
-            
+            const changeSymbol = change > 0 ? '+' : '';
+            document.getElementById('modalStockChange').innerHTML =
+                `<span class="${changeClass}">${changeSymbol}${formatMoneyWon(changeAmount)} (${changeSymbol}${change.toFixed(2)}%)</span>`;
+
             renderMiniChart(gameState.market.candleHistory[companyId]);
-            
+
             // Holding Info
             const holding = gameState.portfolio.find(h => h.companyId === companyId);
             if (holding) {
                 const pnl = (price - holding.avgCost) * holding.qty;
                 const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
                 const pnlClass = pnl >= 0 ? 'positive' : 'negative';
-                
+
                 document.getElementById('holdingInfo').style.display = 'block';
                 document.getElementById('holdingInfo').innerHTML = `
                     <div class="holding-row">
@@ -1636,28 +1790,28 @@
                     </div>
                     <div class="holding-row">
                         <span>평균 매입가</span>
-                        <span>${formatMoney(holding.avgCost)}</span>
+                        <span>${formatMoneyWon(holding.avgCost)}</span>
                     </div>
                     <div class="holding-row">
                         <span>평가 손익</span>
-                        <span class="${pnlClass}">${formatMoney(pnl)} (${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
+                        <span class="${pnlClass}">${formatMoneyWon(pnl)} (${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
                     </div>
                 `;
             } else {
                 document.getElementById('holdingInfo').style.display = 'none';
             }
-            
+
             // Trade Section
             const canTrade = !gameState.isClosed && !gameState.isPaused;
             if (canTrade) {
                 document.getElementById('tradeDisabledMessage').style.display = 'none';
                 document.getElementById('tradeSection').style.display = 'block';
-                
+
                 // Update balance and max buy
-                document.getElementById('tradeBalance').textContent = formatMoney(gameState.brokerageCash);
+                document.getElementById('tradeBalance').textContent = formatMoneyWon(gameState.brokerageCash);
                 const maxQty = Math.floor(gameState.brokerageCash / (price * 1.001));
                 document.getElementById('maxBuyQty').textContent = maxQty.toLocaleString() + '주';
-                
+
                 // Reset quantity input
                 numpadValue = '';
                 document.getElementById('qtyDisplay').textContent = '수량 입력';
@@ -1667,18 +1821,18 @@
                 document.getElementById('tradeDisabledMessage').style.display = 'block';
                 document.getElementById('tradeSection').style.display = 'none';
             }
-            
+
             // Related News
-            const relatedNews = gameState.news.filter(n => 
+            const relatedNews = gameState.news.filter(n =>
                 n.scope === 'company' && n.targetId === companyId ||
                 n.scope === 'sector' && n.targetId === company.sector ||
                 n.scope === 'market'
             ).slice(0, 5);
-            
-            document.getElementById('modalNewsList').innerHTML = relatedNews.length ? 
+
+            document.getElementById('modalNewsList').innerHTML = relatedNews.length ?
                 relatedNews.map(news => createNewsHTML(news)).join('') :
                 '<div class="empty-state">관련 뉴스가 없습니다.</div>';
-            
+
             document.getElementById('stockModal').classList.add('active');
         }
 
@@ -1699,21 +1853,21 @@
                 if (candle.low < min) min = candle.low;
             }
             const range = max - min || 1;
-            
+
             container.innerHTML = recentCandles.map(candle => {
                 const isUp = candle.close >= candle.open;
                 const bodyTop = Math.max(candle.open, candle.close);
                 const bodyBottom = Math.min(candle.open, candle.close);
                 const bodyHeight = Math.max(((bodyTop - bodyBottom) / range) * 100, 1);
                 const bodyBottomPos = ((bodyBottom - min) / range) * 100;
-                
+
                 const wickHeight = ((candle.high - candle.low) / range) * 100;
                 const wickBottomPos = ((candle.low - min) / range) * 100;
-                
+
                 return `
                     <div class="candle">
                         <div class="candle-wick" style="height: ${wickHeight}%; bottom: ${wickBottomPos}%"></div>
-                        <div class="candle-body ${isUp ? 'up' : 'down'}" 
+                        <div class="candle-body ${isUp ? 'up' : 'down'}"
                              style="height: ${bodyHeight}%; bottom: ${bodyBottomPos}%"></div>
                     </div>
                 `;
@@ -1725,16 +1879,42 @@
             if (gameState.isClosed || gameState.isPaused) return;
             numpadMode = 'trade';
             numpadValue = '';
-            document.getElementById('numpadDisplay').textContent = '0';
-            document.getElementById('numpadDisplay').classList.add('empty');
+
+            // Update numpad for trade mode
+            document.getElementById('numpadTitle').textContent = '구매 수량';
+            document.getElementById('numpadDisplay').textContent = '구매 수량을 입력해주세요';
+            document.getElementById('numpadDisplay').classList.remove('has-value');
+            document.getElementById('numpadSubText').textContent = '예상 금액';
+            document.getElementById('numpadConfirmBtn').textContent = '구매하기';
+
+            // Show trade-specific elements
+            document.getElementById('numpadInfo').style.display = 'block';
+            document.getElementById('quickButtons').style.display = 'flex';
+
+            // Update available amount and max qty
+            const price = gameState.market.prices[currentStockId];
+            const maxQty = Math.floor(gameState.brokerageCash / (price * 1.001));
+            document.getElementById('numpadAvailableAmount').textContent = formatMoneyWon(gameState.brokerageCash);
+            document.getElementById('numpadMaxQty').textContent = `최대 ${maxQty.toLocaleString()}주`;
+
             document.getElementById('numpadModal').classList.add('active');
         }
 
         function showTransferNumpad() {
             numpadMode = 'transfer';
             numpadValue = '';
-            document.getElementById('numpadDisplay').textContent = '0';
-            document.getElementById('numpadDisplay').classList.add('empty');
+
+            // Update numpad for transfer mode
+            document.getElementById('numpadTitle').textContent = '이체 금액';
+            document.getElementById('numpadDisplay').textContent = '이체 금액을 입력해주세요';
+            document.getElementById('numpadDisplay').classList.remove('has-value');
+            document.getElementById('numpadSubText').textContent = '';
+            document.getElementById('numpadConfirmBtn').textContent = '이체하기';
+
+            // Hide trade-specific elements
+            document.getElementById('numpadInfo').style.display = 'none';
+            document.getElementById('quickButtons').style.display = 'none';
+
             document.getElementById('numpadModal').classList.add('active');
         }
 
@@ -1745,25 +1925,65 @@
         function addDigit(digit) {
             if (numpadValue === '' && digit === '0') return;
             if (numpadValue.length >= 10) return;
-            
+
             numpadValue += digit;
-            document.getElementById('numpadDisplay').textContent = parseInt(numpadValue).toLocaleString();
-            document.getElementById('numpadDisplay').classList.remove('empty');
+            updateNumpadDisplay();
+        }
+
+        function clearNumpad() {
+            numpadValue = '';
+            updateNumpadDisplay();
         }
 
         function backspace() {
             numpadValue = numpadValue.slice(0, -1);
-            if (numpadValue === '') {
-                document.getElementById('numpadDisplay').textContent = '0';
-                document.getElementById('numpadDisplay').classList.add('empty');
+            updateNumpadDisplay();
+        }
+
+        function addQuickAmount(amount) {
+            if (amount === 'max') {
+                // Calculate max purchasable quantity
+                const price = gameState.market.prices[currentStockId];
+                const maxQty = Math.floor(gameState.brokerageCash / (price * 1.001));
+                numpadValue = String(maxQty);
             } else {
-                document.getElementById('numpadDisplay').textContent = parseInt(numpadValue).toLocaleString();
+                const currentValue = parseInt(numpadValue) || 0;
+                numpadValue = String(currentValue + amount);
+            }
+            updateNumpadDisplay();
+        }
+
+        function updateNumpadDisplay() {
+            const value = parseInt(numpadValue) || 0;
+            const displayEl = document.getElementById('numpadDisplay');
+            const subTextEl = document.getElementById('numpadSubText');
+
+            if (value === 0) {
+                if (numpadMode === 'trade') {
+                    displayEl.textContent = '구매 수량을 입력해주세요';
+                    subTextEl.textContent = '예상 금액';
+                } else {
+                    displayEl.textContent = '이체 금액을 입력해주세요';
+                    subTextEl.textContent = '';
+                }
+                displayEl.classList.remove('has-value');
+            } else {
+                if (numpadMode === 'trade') {
+                    displayEl.textContent = value.toLocaleString() + '주';
+                    const price = gameState.market.prices[currentStockId];
+                    const totalAmount = price * value;
+                    subTextEl.textContent = formatMoneyWon(totalAmount);
+                } else {
+                    displayEl.textContent = formatMoneyWon(value);
+                    subTextEl.textContent = '';
+                }
+                displayEl.classList.add('has-value');
             }
         }
 
         function confirmNumpad() {
             const value = parseInt(numpadValue) || 0;
-            
+
             if (numpadMode === 'trade') {
                 if (value === 0) {
                     document.getElementById('qtyDisplay').textContent = '수량 입력';
@@ -1779,11 +1999,11 @@
                     document.getElementById('transferDisplay').textContent = '금액 입력';
                     document.getElementById('transferDisplay').classList.add('empty');
                 } else {
-                    document.getElementById('transferDisplay').textContent = formatMoney(value);
+                    document.getElementById('transferDisplay').textContent = formatMoneyWon(value);
                     document.getElementById('transferDisplay').classList.remove('empty');
                 }
             }
-            
+
             closeNumpad();
         }
 
@@ -1792,10 +2012,10 @@
             const amount = price * qty;
             const fee = amount * 0.001;
             const total = amount + fee;
-            
-            document.getElementById('estimateAmount').textContent = formatMoney(amount);
-            document.getElementById('estimateFee').textContent = formatMoney(fee);
-            document.getElementById('estimateTotal').textContent = formatMoney(total);
+
+            document.getElementById('estimateAmount').textContent = formatMoneyWon(amount);
+            document.getElementById('estimateFee').textContent = formatMoneyWon(fee);
+            document.getElementById('estimateTotal').textContent = formatMoneyWon(total);
             document.getElementById('tradeEstimate').style.display = 'block';
         }
 
@@ -1831,7 +2051,7 @@
                 }
 
                 gameState.brokerageCash -= total;
-                
+
                 const holding = gameState.portfolio.find(h => h.companyId === currentStockId);
                 if (holding) {
                     const totalQty = holding.qty + qty;
@@ -1856,7 +2076,7 @@
                 const fee = amount * 0.001;
                 const tax = amount * 0.002;
                 const realizedPnL = (price - holding.avgCost) * qty;
-                
+
                 let capitalGainsTax = 0;
                 const holdingValue = price * holding.qty;
                 if (holdingValue >= 1000000000) {
@@ -1887,7 +2107,7 @@
                 showToast('금액을 입력해주세요');
                 return;
             }
-            
+
             const amount = parseInt(displayText.replace(/[^0-9]/g, ''));
             if (!amount || amount <= 0) {
                 showToast('금액을 입력해주세요');
@@ -1903,9 +2123,9 @@
             }
 
             document.getElementById('confirmTitle').textContent = '계좌 이체 확인';
-            document.getElementById('confirmMessage').innerHTML = 
-                `<strong>${formatMoney(amount)}</strong>을(를)<br>${directionText} 이체하시겠습니까?`;
-            
+            document.getElementById('confirmMessage').innerHTML =
+                `<strong>${formatMoneyWon(amount)}</strong>을(를)<br>${directionText} 이체하시겠습니까?`;
+
             confirmCallback = () => executeTransfer(direction, amount);
             document.getElementById('confirmModal').classList.add('active');
         }
@@ -1914,11 +2134,11 @@
             if (direction === 'toBrokerage') {
                 gameState.cash -= amount;
                 gameState.brokerageCash += amount;
-                showToast(`✅ 예수금으로 ${formatMoney(amount)} 이체`);
+                showToast(`✅ 예수금으로 ${formatMoneyWon(amount)} 이체`);
             } else {
                 gameState.brokerageCash -= amount;
                 gameState.cash += amount;
-                showToast(`✅ 현금으로 ${formatMoney(amount)} 이체`);
+                showToast(`✅ 현금으로 ${formatMoneyWon(amount)} 이체`);
             }
 
             document.getElementById('transferDisplay').textContent = '금액 입력';
@@ -1942,10 +2162,10 @@
         function switchTab(tab) {
             document.querySelectorAll('.gnb-item').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-            
+
             event.target.closest('.gnb-item').classList.add('active');
             document.getElementById(tab + 'Panel').classList.add('active');
-            
+
             if (tab === 'portfolio') renderPortfolio();
             if (tab === 'news') renderNews();
         }
@@ -2014,7 +2234,7 @@
                 const change = ((currentPrice - prevClose) / prevClose * 100);
                 const changeAmount = currentPrice - prevClose;
                 const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-                const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '';
+                const changeSymbol = change > 0 ? '+' : '';
 
                 const totalValue = currentPrice * holding.qty;
                 const pnl = (currentPrice - holding.avgCost) * holding.qty;
@@ -2029,16 +2249,16 @@
                 const totalValueEl = item.querySelector('[data-total-value]');
                 const pnlEl = item.querySelector('[data-pnl]');
 
-                if (priceEl) priceEl.textContent = formatMoney(currentPrice);
+                if (priceEl) priceEl.textContent = formatMoneyWon(currentPrice);
                 if (changeEl) {
-                    changeEl.textContent = `${changeSymbol} ${formatMoney(Math.abs(changeAmount))} (${Math.abs(change).toFixed(2)}%)`;
+                    changeEl.textContent = `${changeSymbol}${formatMoneyWon(changeAmount)} (${changeSymbol}${change.toFixed(2)}%)`;
                     changeEl.className = `portfolio-ticker ${changeClass}`;
                 }
                 if (qtyEl) qtyEl.textContent = holding.qty.toLocaleString() + '주';
-                if (avgCostEl) avgCostEl.textContent = formatMoney(holding.avgCost);
-                if (totalValueEl) totalValueEl.textContent = formatMoney(totalValue);
+                if (avgCostEl) avgCostEl.textContent = formatMoneyWon(holding.avgCost);
+                if (totalValueEl) totalValueEl.textContent = formatMoneyWon(totalValue);
                 if (pnlEl) {
-                    pnlEl.innerHTML = `${formatMoney(pnl)}<br><span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
+                    pnlEl.innerHTML = `${formatMoneyWon(pnl)}<br><span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
                     pnlEl.className = `portfolio-value ${pnlClass}`;
                 }
             });
@@ -2047,7 +2267,7 @@
         // Render News
         function renderNews() {
             const container = document.getElementById('newsList');
-            container.innerHTML = gameState.news.length ? 
+            container.innerHTML = gameState.news.length ?
                 gameState.news.map(news => createNewsHTML(news)).join('') :
                 '<div class="empty-state">아직 뉴스가 없습니다</div>';
         }
@@ -2055,7 +2275,7 @@
         function createNewsHTML(news) {
             const impactClass = news.impactNow >= 0 ? 'impact-positive' : 'impact-negative';
             const impactText = news.impactNow >= 0 ? `+${(news.impactNow * 100).toFixed(1)}%` : `${(news.impactNow * 100).toFixed(1)}%`;
-            
+
             return `
                 <div class="news-item ${news.scope}">
                     <div class="news-header">
