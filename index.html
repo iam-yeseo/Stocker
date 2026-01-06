@@ -411,21 +411,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-end;
             position: relative;
+            height: 100%;
         }
 
         .candle-wick {
             width: 1px;
             background: #999;
             position: absolute;
-            bottom: 0;
         }
 
         .candle-body {
-            width: 100%;
+            width: 70%;
             min-height: 2px;
-            position: relative;
+            position: absolute;
             z-index: 1;
             border-radius: 1px;
         }
@@ -833,6 +832,12 @@
             padding: 15px;
             border-radius: 12px;
             border: 1px solid #e5e5e5;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .portfolio-item:active {
+            background: #f8f8f8;
         }
 
         .portfolio-header {
@@ -875,6 +880,22 @@
             font-weight: 600;
             font-size: 13px;
             color: #333;
+        }
+
+        .portfolio-value.positive {
+            color: #ef4444;
+        }
+
+        .portfolio-value.negative {
+            color: #3b82f6;
+        }
+
+        .portfolio-ticker.positive {
+            color: #ef4444;
+        }
+
+        .portfolio-ticker.negative {
+            color: #3b82f6;
         }
 
         /* Account */
@@ -1411,6 +1432,15 @@
                 const stockItem = e.target.closest('.stock-item');
                 if (stockItem) {
                     const companyId = parseInt(stockItem.dataset.companyId);
+                    if (companyId) openStockDetail(companyId);
+                }
+            });
+
+            // Portfolio list click delegation
+            document.getElementById('portfolioList').addEventListener('click', (e) => {
+                const portfolioItem = e.target.closest('.portfolio-item');
+                if (portfolioItem) {
+                    const companyId = parseInt(portfolioItem.dataset.companyId);
                     if (companyId) openStockDetail(companyId);
                 }
             });
