@@ -439,14 +439,23 @@ function render(){
   // 트래픽 (뒤에서 앞으로)
   for(let n=DRAW_DIST-1; n>0; n--){
     const seg = segments[(baseSeg.index + n) % segments.length];
+    if(!seg.cars.length) continue;
     for(const car of seg.cars){
       const p = seg.p1;
       if(p.camera.z <= CAM_DEPTH) continue;
       const scale = p.screen.scale;
       const carX = p.screen.x + scale * car.offset * ROAD_W * W/2;
       const carY = p.screen.y;
-      const carW = scale * ROAD_W * W/2 * 0.42;
-      if(carY < seg.clip) drawCarSprite(carX, carY, Math.max(carW, 4), car.color, false, 0);
+      const carW = Math.max(scale * ROAD_W * W/2 * 0.46, 4);
+      const carH = carW * 0.9;
+      if(carY - carH > seg.clip) continue;   // 언덕 능선에 완전히 가려진 경우만 스킵
+      // 능선(clip) 아래로 내려가는 부분만 잘라내고 그리기
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, 0, W, seg.clip + 1);
+      ctx.clip();
+      drawCarSprite(carX, carY, carW, car.color, false, 0);
+      ctx.restore();
     }
   }
 
