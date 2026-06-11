@@ -1,2347 +1,638 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Stocker - 주식 시뮬레이션</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f5f5f5;
-            color: #1a1a1a;
-            overflow-x: hidden;
-            padding-bottom: 80px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 15px;
-            padding-top: 70px;
-        }
-
-        /* Header */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            padding: 12px 15px;
-            z-index: 100;
-            border-bottom: 1px solid #e5e5e5;
-            box-shadow: none;
-        }
-
-        .header-content {
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 800;
-            color: #1a1a1a;
-        }
-
-        .time-controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .time-info {
-            background: #f0f0f0;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            min-width: 130px;
-            text-align: center;
-            color: #333;
-        }
-
-        .status-badge {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .status-badge.open {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-        }
-
-        .btn-control {
-            background: #f0f0f0;
-            color: #333;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-control:active {
-            transform: scale(0.95);
-            background: #e0e0e0;
-        }
-
-        .btn-next-day {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Dashboard */
-        .dashboard {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .stat-card {
-            background: #ffffff;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid #e5e5e5;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        .stat-card.cash-card {
-            border-left: 4px solid #10b981;
-        }
-
-        .stat-card.brokerage-card {
-            border-left: 4px solid #3b82f6;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: #888888;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a1a1a;
-            word-break: break-all;
-        }
-
-        .announcement-banner {
-            background: #ffffff;
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            padding: 14px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        .announcement-text {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .announcement-text strong {
-            color: #1a1a1a;
-        }
-
-        .announcement-arrow {
-            color: #999;
-            font-size: 18px;
-        }
-
-        .positive { color: #ef4444; }
-        .negative { color: #3b82f6; }
-
-        /* Content Panels */
-        .content-panel {
-            display: none;
-            min-height: calc(100vh - 250px);
-        }
-
-        .content-panel.active {
-            display: block;
-        }
-
-        /* Stock List */
-        .filters {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .filters::-webkit-scrollbar {
-            display: none;
-        }
-
-        .filter-btn {
-            background: #e8e8e8;
-            color: #666;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            white-space: nowrap;
-            flex-shrink: 0;
-            font-weight: 500;
-        }
-
-        .filter-btn.active {
-            background: #2196F3;
-            color: white;
-        }
-
-        .stock-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-            background: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #e5e5e5;
-        }
-
-        .stock-item {
-            background: #ffffff;
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .stock-item:last-child {
-            border-bottom: none;
-        }
-
-        .stock-item:active {
-            background: #f8f8f8;
-        }
-
-        .stock-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .stock-logo {
-            width: 40px;
-            height: 40px;
-            background: #e8e8e8;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: #999;
-            flex-shrink: 0;
-        }
-
-        .stock-details {
-            flex: 1;
-        }
-
-        .stock-name {
-            font-weight: 600;
-            font-size: 15px;
-            color: #1a1a1a;
-            margin-bottom: 4px;
-        }
-
-        .stock-ticker {
-            font-size: 12px;
-            color: #888888;
-        }
-
-        .stock-price {
-            text-align: right;
-            min-width: 100px;
-        }
-
-        .price {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: #1a1a1a;
-        }
-
-        .change {
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: flex-end;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #ffffff;
-            border-radius: 20px 20px 0 0;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-            }
-            to {
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            background: #ffffff;
-            z-index: 10;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: #999;
-            font-size: 28px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .modal-close:active {
-            background: #f0f0f0;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .stock-detail-header {
-            margin-bottom: 20px;
-        }
-
-        .detail-price {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #1a1a1a;
-        }
-
-        .mini-chart {
-            background: #f8f8f8;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            height: 180px;
-            display: flex;
-            align-items: flex-end;
-            gap: 3px;
-            position: relative;
-        }
-
-        .candle {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            height: 100%;
-        }
-
-        .candle-wick {
-            width: 1px;
-            background: #999;
-            position: absolute;
-        }
-
-        .candle-body {
-            width: 70%;
-            min-height: 2px;
-            position: absolute;
-            z-index: 1;
-            border-radius: 1px;
-        }
-
-        .candle-body.up {
-            background: #ef4444;
-            border: 1px solid #ef4444;
-        }
-
-        .candle-body.down {
-            background: #3b82f6;
-            border: 1px solid #3b82f6;
-        }
-
-        .holding-info {
-            background: #f8f8f8;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .holding-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .trade-section {
-            background: #f8f8f8;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .trade-disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .disabled-message {
-            text-align: center;
-            color: #888;
-            font-size: 14px;
-            padding: 20px;
-            background: #f8f8f8;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .trade-info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-
-        .trade-info-label {
-            color: #888;
-        }
-
-        .trade-info-value {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 6px;
-        }
-
-        .input-display {
-            width: 100%;
-            background: #ffffff;
-            border: 2px solid #e5e5e5;
-            color: #1a1a1a;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 20px;
-            text-align: right;
-            font-weight: 600;
-            cursor: pointer;
-            min-height: 50px;
-        }
-
-        .input-display:active {
-            border-color: #3b82f6;
-        }
-
-        .input-display.empty {
-            color: #ccc;
-            font-size: 16px;
-            font-weight: 400;
-        }
-
-        .trade-estimate {
-            background: #ffffff;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #e5e5e5;
-        }
-
-        .estimate-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .estimate-row:last-child {
-            margin-bottom: 0;
-            padding-top: 8px;
-            border-top: 1px solid #f0f0f0;
-            font-weight: 600;
-            font-size: 15px;
-            color: #333;
-        }
-
-        .trade-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-trade {
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-trade:active {
-            transform: scale(0.98);
-        }
-
-        .btn-buy {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-sell {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-trade:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Numpad Modal */
-        .numpad-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: flex-end;
-        }
-
-        .numpad-modal.active {
-            display: flex;
-        }
-
-        .numpad-content {
-            background: #ffffff;
-            border-radius: 20px 20px 0 0;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 24px 20px;
-            animation: slideUp 0.3s ease;
-        }
-
-        .numpad-header {
-            text-align: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .numpad-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .numpad-display-area {
-            text-align: center;
-            padding: 30px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .numpad-input-text {
-            font-size: 28px;
-            color: #cccccc;
-            margin-bottom: 8px;
-        }
-
-        .numpad-input-text.has-value {
-            color: #333333;
-            font-weight: 600;
-        }
-
-        .numpad-sub-text {
-            font-size: 14px;
-            color: #999999;
-        }
-
-        .numpad-info {
-            padding: 16px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .info-value {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .quick-buttons {
-            display: flex;
-            gap: 8px;
-            padding: 16px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .quick-btn {
-            flex: 1;
-            padding: 10px 4px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            background: #ffffff;
-            font-size: 13px;
-            color: #333;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .quick-btn:active {
-            background: #f5f5f5;
-            transform: scale(0.95);
-        }
-
-        .numpad-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            padding: 16px 0;
-        }
-
-        .numpad-btn {
-            background: transparent;
-            border: none;
-            padding: 20px;
-            font-size: 24px;
-            font-weight: 500;
-            color: #333;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.2s;
-        }
-
-        .numpad-btn:active {
-            background: #f0f0f0;
-            transform: scale(0.95);
-        }
-
-        .numpad-btn.text-btn {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .numpad-btn.backspace {
-            color: #666;
-        }
-
-        .numpad-actions {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 10px;
-            padding-top: 16px;
-        }
-
-        .btn-numpad-cancel {
-            background: #f5f5f5;
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #666;
-            cursor: pointer;
-        }
-
-        .btn-numpad-cancel:active {
-            background: #e8e8e8;
-        }
-
-        .btn-numpad-confirm {
-            background: #2196F3;
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #ffffff;
-            cursor: pointer;
-        }
-
-        .btn-numpad-confirm:active {
-            background: #1976D2;
-        }
-
-        /* News */
-        .news-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .news-item {
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #e5e5e5;
-            border-left: 4px solid #3b82f6;
-        }
-
-        .news-item.company { border-left-color: #3b82f6; }
-        .news-item.sector { border-left-color: #8b5cf6; }
-        .news-item.market { border-left-color: #f59e0b; }
-
-        .news-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 11px;
-            color: #888;
-        }
-
-        .news-title {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #1a1a1a;
-        }
-
-        .news-description {
-            font-size: 13px;
-            color: #888;
-            line-height: 1.5;
-        }
-
-        .news-impact {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
-        .impact-positive {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-
-        .impact-negative {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-        }
-
-        /* Portfolio */
-        .portfolio-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .portfolio-item {
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #e5e5e5;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .portfolio-item:active {
-            background: #f8f8f8;
-        }
-
-        .portfolio-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .portfolio-name {
-            font-weight: 600;
-            font-size: 15px;
-            color: #1a1a1a;
-        }
-
-        .portfolio-ticker {
-            font-size: 11px;
-            color: #888;
-        }
-
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .portfolio-stat {
-            background: #f8f8f8;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        .portfolio-label {
-            font-size: 10px;
-            color: #888;
-            margin-bottom: 4px;
-        }
-
-        .portfolio-value {
-            font-weight: 600;
-            font-size: 13px;
-            color: #333;
-        }
-
-        .portfolio-value.positive {
-            color: #ef4444;
-        }
-
-        .portfolio-value.negative {
-            color: #3b82f6;
-        }
-
-        .portfolio-ticker.positive {
-            color: #ef4444;
-        }
-
-        .portfolio-ticker.negative {
-            color: #3b82f6;
-        }
-
-        /* Account */
-        .account-section {
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #e5e5e5;
-        }
-
-        .section-title {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #1a1a1a;
-        }
-
-        .btn-full {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-primary:active {
-            background: #2563eb;
-            transform: scale(0.98);
-        }
-
-        /* Confirm Modal */
-        .confirm-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .confirm-modal.active {
-            display: flex;
-        }
-
-        .confirm-content {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 24px;
-            max-width: 350px;
-            width: 100%;
-            animation: scaleIn 0.2s ease;
-        }
-
-        @keyframes scaleIn {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .confirm-title {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 12px;
-            color: #1a1a1a;
-        }
-
-        .confirm-message {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .confirm-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .btn-confirm {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-cancel {
-            background: #f5f5f5;
-            color: #666;
-        }
-
-        .btn-ok {
-            background: #3b82f6;
-            color: white;
-        }
-
-        /* GNB */
-        .gnb {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #ffffff;
-            border-top: 1px solid #e5e5e5;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            z-index: 100;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .gnb-item {
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            background: none;
-            color: #999999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .gnb-item:active {
-            background: #f8f8f8;
-        }
-
-        .gnb-item.active {
-            color: #2196F3;
-        }
-
-        .gnb-icon {
-            font-size: 20px;
-        }
-
-        .gnb-label {
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333333;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            z-index: 2000;
-            animation: slideIn 0.3s ease;
-            max-width: 90%;
-            text-align: center;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(-50%) translateY(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* Empty State */
-        .empty-state {
-            color: #888;
-            text-align: center;
-            padding: 40px 20px;
-            font-size: 14px;
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f5f5f5;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #ddd;
-            border-radius: 3px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COASTAL RUSH — 해안도로 레이싱</title>
+<style>
+  :root{
+    --sky-top:#7ec8e3; --sky-bot:#fdf3d8;
+    --sea:#1d7a8c; --sand:#e8d9a8;
+    --ink:#1d2a32; --paper:#fffdf6;
+    --accent:#e8543f; --accent-dark:#b93a28;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:#10181d;
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);
+    overflow:hidden;
+  }
+  #wrap{position:relative; width:min(96vw, 960px);}
+  canvas{
+    display:block;width:100%;
+    border-radius:14px;
+    box-shadow:0 24px 60px rgba(0,0,0,.55);
+    background:#000;
+  }
+  /* ===== HUD ===== */
+  #hud{
+    position:absolute; inset:0; pointer-events:none;
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:18px 22px;
+  }
+  .hud-row{display:flex; justify-content:space-between; align-items:flex-start;}
+  .pill{
+    background:rgba(255,253,246,.92);
+    border:2px solid var(--ink);
+    border-radius:10px;
+    padding:7px 14px;
+    box-shadow:3px 3px 0 rgba(29,42,50,.6);
+  }
+  .pill .label{font-size:10px; letter-spacing:.18em; font-weight:700; opacity:.55;}
+  .pill .val{font-size:24px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1.05;}
+  .pill .unit{font-size:12px; font-weight:600; opacity:.6; margin-left:2px;}
+  #speedPill .val{color:var(--accent-dark); font-size:30px;}
+  #msg{
+    position:absolute; left:50%; top:26%; transform:translateX(-50%);
+    font-size:30px; font-weight:900; color:#fff;
+    text-shadow:0 3px 0 rgba(0,0,0,.4);
+    opacity:0; transition:opacity .25s;
+    white-space:nowrap;
+  }
+  /* ===== 오버레이 (시작/게임오버) ===== */
+  .overlay{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:rgba(16,24,29,.72); backdrop-filter:blur(3px);
+    border-radius:14px; text-align:center; color:var(--paper);
+    gap:14px;
+  }
+  .overlay.hidden{display:none;}
+  .overlay h1{
+    font-size:clamp(34px,6vw,58px); font-weight:900; letter-spacing:-.02em;
+    color:#fff;
+  }
+  .overlay h1 em{font-style:normal; color:#ffb03a;}
+  .overlay .sub{font-size:15px; opacity:.85; line-height:1.7;}
+  .keys{
+    display:flex; gap:18px; margin:6px 0 4px; flex-wrap:wrap; justify-content:center;
+  }
+  .keygroup{display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; opacity:.9;}
+  kbd{
+    display:inline-block; min-width:34px; padding:6px 9px;
+    background:var(--paper); color:var(--ink);
+    border-radius:7px; border-bottom:3px solid #b9b2a0;
+    font-weight:800; font-size:13px; text-align:center;
+    font-family:inherit;
+  }
+  button{
+    pointer-events:auto; cursor:pointer;
+    font-family:inherit; font-weight:800; font-size:17px;
+    color:#fff; background:var(--accent);
+    border:none; border-radius:10px;
+    padding:13px 38px;
+    border-bottom:4px solid var(--accent-dark);
+    transition:transform .08s;
+  }
+  button:hover{transform:translateY(-2px);}
+  button:active{transform:translateY(1px); border-bottom-width:2px;}
+  .result{
+    display:flex; gap:26px; margin:4px 0;
+  }
+  .result div{text-align:center;}
+  .result .rv{font-size:34px; font-weight:900; color:#ffb03a;}
+  .result .rl{font-size:11px; letter-spacing:.15em; opacity:.7; margin-top:2px;}
+  .hint{font-size:12px; opacity:.55; margin-top:4px;}
+</style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">STOCKER</div>
-            <div class="time-controls">
-                <div class="time-info" id="timeDisplay">1일 08:00</div>
-                <button class="btn-control" id="pauseBtn" onclick="togglePause()">⏸️</button>
-                <button class="btn-next-day" id="nextDayBtn" onclick="nextDay()" style="display: none;">다음 날</button>
-            </div>
-        </div>
+<div id="wrap">
+  <canvas id="game" width="960" height="600"></canvas>
+
+  <div id="hud">
+    <div class="hud-row">
+      <div class="pill" id="speedPill">
+        <div class="label">SPEED</div>
+        <div><span class="val" id="speedVal">0</span><span class="unit">km/h</span></div>
+      </div>
+      <div class="pill">
+        <div class="label">TIME</div>
+        <div><span class="val" id="timeVal">60.0</span></div>
+      </div>
+      <div class="pill">
+        <div class="label">DISTANCE</div>
+        <div><span class="val" id="distVal">0.0</span><span class="unit">km</span></div>
+      </div>
     </div>
-
-    <!-- Container -->
-    <div class="container">
-        <!-- Dashboard -->
-        <div class="dashboard">
-            <div class="dashboard-cards">
-                <div class="stat-card cash-card">
-                    <div class="stat-label">💵 현금</div>
-                    <div class="stat-value" id="cashDisplay">1,000,000원</div>
-                </div>
-                <div class="stat-card brokerage-card">
-                    <div class="stat-label">💰 예수금</div>
-                    <div class="stat-value" id="brokerageDisplay">0원</div>
-                </div>
-            </div>
-            <div class="announcement-banner">
-                <div class="announcement-text">
-                    <strong>공지:</strong> 증권거래소 개장 시간은 오전 9시입니다.
-                </div>
-                <div class="announcement-arrow">›</div>
-            </div>
-        </div>
-
-        <!-- Content Panels -->
-        <div id="stocksPanel" class="content-panel active">
-            <div class="filters" id="filterButtons"></div>
-            <div id="stockList" class="stock-list"></div>
-        </div>
-
-        <div id="portfolioPanel" class="content-panel">
-            <div id="portfolioList" class="portfolio-list"></div>
-        </div>
-
-        <div id="newsPanel" class="content-panel">
-            <div id="newsList" class="news-list"></div>
-        </div>
-
-        <div id="investPanel" class="content-panel">
-            <div class="empty-state">
-                🏗️ 부동산, 차량, 사치품 등<br>추가 투자 상품 준비 중
-            </div>
-        </div>
-
-        <div id="accountPanel" class="content-panel">
-            <div class="account-section">
-                <div class="section-title">💰 계좌 이체</div>
-                <div class="input-group">
-                    <label>이체 금액</label>
-                    <div class="input-display empty" id="transferDisplay" onclick="showTransferNumpad()">금액 입력</div>
-                </div>
-                <button class="btn-full btn-primary" onclick="showTransferConfirm('toBrokerage')">
-                    현금 → 예수금
-                </button>
-                <button class="btn-full btn-primary" onclick="showTransferConfirm('toCash')">
-                    예수금 → 현금
-                </button>
-            </div>
-        </div>
+    <div class="hud-row">
+      <div class="pill">
+        <div class="label">SCORE</div>
+        <div><span class="val" id="scoreVal">0</span></div>
+      </div>
+      <div class="pill">
+        <div class="label">BEST</div>
+        <div><span class="val" id="bestVal">0</span></div>
+      </div>
     </div>
+  </div>
+  <div id="msg"></div>
 
-    <!-- Stock Detail Modal -->
-    <div id="stockModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
-                    <h2 id="modalStockName" style="font-size: 20px; margin-bottom: 4px; color: #1a1a1a;"></h2>
-                    <div id="modalStockTicker" style="color: #888; font-size: 12px;"></div>
-                </div>
-                <button class="modal-close" onclick="closeModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <div class="stock-detail-header">
-                    <div class="detail-price" id="modalStockPrice"></div>
-                    <div id="modalStockChange"></div>
-                </div>
-
-                <div class="mini-chart" id="miniChart"></div>
-
-                <div class="holding-info" id="holdingInfo" style="display: none;"></div>
-
-                <div id="tradeDisabledMessage" class="disabled-message" style="display: none;">
-                    ⏰ 거래소가 폐장되어 주식 거래가 불가능합니다
-                </div>
-
-                <div class="trade-section" id="tradeSection">
-                    <div class="trade-info-row">
-                        <span class="trade-info-label">예수금 잔고</span>
-                        <span class="trade-info-value" id="tradeBalance">0원</span>
-                    </div>
-                    <div class="trade-info-row">
-                        <span class="trade-info-label">최대 구매 가능</span>
-                        <span class="trade-info-value" id="maxBuyQty">0주</span>
-                    </div>
-
-                    <div class="input-group">
-                        <label>거래 수량</label>
-                        <div class="input-display empty" id="qtyDisplay" onclick="showNumpad()">수량 입력</div>
-                    </div>
-
-                    <div class="trade-estimate" id="tradeEstimate" style="display: none;">
-                        <div class="estimate-row">
-                            <span>거래 금액</span>
-                            <span id="estimateAmount">-</span>
-                        </div>
-                        <div class="estimate-row">
-                            <span>수수료</span>
-                            <span id="estimateFee">-</span>
-                        </div>
-                        <div class="estimate-row">
-                            <span>총 필요 금액 (매수)</span>
-                            <span id="estimateTotal">-</span>
-                        </div>
-                    </div>
-
-                    <div class="trade-buttons">
-                        <button class="btn-trade btn-buy" onclick="executeTrade('buy')">매수</button>
-                        <button class="btn-trade btn-sell" onclick="executeTrade('sell')">매도</button>
-                    </div>
-                </div>
-
-                <h3 style="margin: 20px 0 10px; font-size: 16px; color: #1a1a1a;">관련 뉴스</h3>
-                <div id="modalNewsList" class="news-list"></div>
-            </div>
-        </div>
+  <div class="overlay" id="startOverlay">
+    <h1>COASTAL <em>RUSH</em></h1>
+    <div class="sub">해안도로를 달려 체크포인트에 도달하세요!<br>차량을 추월하면 보너스 점수, 충돌하면 속도가 크게 떨어집니다.</div>
+    <div class="keys">
+      <div class="keygroup"><div><kbd>↑</kbd> / <kbd>W</kbd></div>가속</div>
+      <div class="keygroup"><div><kbd>↓</kbd> / <kbd>S</kbd></div>브레이크</div>
+      <div class="keygroup"><div><kbd>←</kbd><kbd>→</kbd> / <kbd>A</kbd><kbd>D</kbd></div>조향</div>
+      <div class="keygroup"><div><kbd>P</kbd></div>일시정지</div>
     </div>
+    <button id="startBtn">게임 시작</button>
+  </div>
 
-    <!-- Numpad Modal -->
-    <div id="numpadModal" class="numpad-modal">
-        <div class="numpad-content">
-            <div class="numpad-header">
-                <span class="numpad-title" id="numpadTitle">구매 수량</span>
-            </div>
-
-            <div class="numpad-display-area">
-                <div class="numpad-input-text" id="numpadDisplay">구매 수량을 입력해주세요</div>
-                <div class="numpad-sub-text" id="numpadSubText">예상 금액</div>
-            </div>
-
-            <div class="numpad-info" id="numpadInfo">
-                <div class="info-row">
-                    <span>주문 가능 금액</span>
-                    <span class="info-value" id="numpadAvailableAmount">0원</span>
-                </div>
-                <div class="info-row">
-                    <span>구매 가능 수량</span>
-                    <span class="info-value" id="numpadMaxQty">최대 0주</span>
-                </div>
-            </div>
-
-            <div class="quick-buttons" id="quickButtons">
-                <button class="quick-btn" onclick="addQuickAmount(10)">+10</button>
-                <button class="quick-btn" onclick="addQuickAmount(100)">+100</button>
-                <button class="quick-btn" onclick="addQuickAmount(1000)">+1,000</button>
-                <button class="quick-btn" onclick="addQuickAmount(10000)">+10,000</button>
-                <button class="quick-btn" onclick="addQuickAmount('max')">최대</button>
-            </div>
-
-            <div class="numpad-grid">
-                <button class="numpad-btn" onclick="addDigit('1')">1</button>
-                <button class="numpad-btn" onclick="addDigit('2')">2</button>
-                <button class="numpad-btn" onclick="addDigit('3')">3</button>
-                <button class="numpad-btn" onclick="addDigit('4')">4</button>
-                <button class="numpad-btn" onclick="addDigit('5')">5</button>
-                <button class="numpad-btn" onclick="addDigit('6')">6</button>
-                <button class="numpad-btn" onclick="addDigit('7')">7</button>
-                <button class="numpad-btn" onclick="addDigit('8')">8</button>
-                <button class="numpad-btn" onclick="addDigit('9')">9</button>
-                <button class="numpad-btn text-btn" onclick="clearNumpad()">전체삭제</button>
-                <button class="numpad-btn" onclick="addDigit('0')">0</button>
-                <button class="numpad-btn backspace" onclick="backspace()">⌫</button>
-            </div>
-
-            <div class="numpad-actions">
-                <button class="btn-numpad-cancel" onclick="closeNumpad()">취소</button>
-                <button class="btn-numpad-confirm" id="numpadConfirmBtn" onclick="confirmNumpad()">구매하기</button>
-            </div>
-        </div>
+  <div class="overlay hidden" id="overOverlay">
+    <h1 id="overTitle">TIME OVER</h1>
+    <div class="result">
+      <div><div class="rv" id="finalScore">0</div><div class="rl">SCORE</div></div>
+      <div><div class="rv" id="finalDist">0.0</div><div class="rl">KM</div></div>
+      <div><div class="rv" id="finalPass">0</div><div class="rl">추월</div></div>
     </div>
+    <button id="retryBtn">다시 달리기</button>
+    <div class="hint">R 키로도 재시작할 수 있어요</div>
+  </div>
+</div>
 
-    <!-- Confirm Modal -->
-    <div id="confirmModal" class="confirm-modal">
-        <div class="confirm-content">
-            <div class="confirm-title" id="confirmTitle"></div>
-            <div class="confirm-message" id="confirmMessage"></div>
-            <div class="confirm-buttons">
-                <button class="btn-confirm btn-cancel" onclick="closeConfirm()">취소</button>
-                <button class="btn-confirm btn-ok" onclick="confirmAction()">확인</button>
-            </div>
-        </div>
-    </div>
+<script>
+"use strict";
+/* =========================================================
+   COASTAL RUSH — pseudo-3D 해안도로 레이싱
+   ========================================================= */
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
 
-    <!-- GNB -->
-    <div class="gnb">
-        <button class="gnb-item active" onclick="switchTab('stocks')">
-            <div class="gnb-icon">🏠</div>
-            <div class="gnb-label">증권거래소</div>
-        </button>
-        <button class="gnb-item" onclick="switchTab('invest')">
-            <div class="gnb-icon">📊</div>
-            <div class="gnb-label">투자</div>
-        </button>
-        <button class="gnb-item" onclick="switchTab('portfolio')">
-            <div class="gnb-icon">💼</div>
-            <div class="gnb-label">포트폴리오</div>
-        </button>
-        <button class="gnb-item" onclick="switchTab('news')">
-            <div class="gnb-icon">📰</div>
-            <div class="gnb-label">소식</div>
-        </button>
-        <button class="gnb-item" onclick="switchTab('account')">
-            <div class="gnb-icon">👤</div>
-            <div class="gnb-label">내 정보</div>
-        </button>
-    </div>
+/* ---------- 트랙 설정 ---------- */
+const SEG_LEN   = 200;            // 세그먼트 길이
+const RUMBLE    = 3;              // 럼블 스트립 묶음
+const ROAD_W    = 2200;           // 도로 반폭
+const DRAW_DIST = 220;            // 그릴 세그먼트 수
+const CAM_H     = 1100;
+const FOV       = 100;
+const CAM_DEPTH = 1 / Math.tan((FOV/2) * Math.PI/180);
+const LANES     = 3;
 
-    <script>
-        // Game State
-        const gameState = {
-            day: 1,
-            timeMinutes: 480,
-            cash: 1000000,
-            brokerageCash: 0,
-            portfolio: [],
-            market: {
-                companies: [],
-                prices: {},
-                previousClosePrices: {},
-                candleHistory: {},
-                marketMood: 0
-            },
-            news: [],
-            newsCache: {
-                company: {},  // { companyId: [news items] }
-                sector: {},   // { sector: [news items] }
-                market: []
-            },
-            selectedSector: '전체',
-            isPaused: false,
-            isClosed: false
-        };
+const MAX_SPEED   = SEG_LEN * 60 * 1.05;  // 내부 단위 속도
+const ACCEL       = MAX_SPEED / 5.5;
+const BRAKE       = -MAX_SPEED / 2.2;
+const DECEL       = -MAX_SPEED / 6;
+const OFFROAD_DECEL = -MAX_SPEED / 1.6;
+const OFFROAD_LIMIT = MAX_SPEED / 4;
 
-        let gameTimer = null;
-        let currentStockId = null;
-        let confirmCallback = null;
-        let numpadValue = '';
-        let numpadMode = 'trade'; // 'trade' or 'transfer'
-        let lastTickTime = 0;
-        const TICK_INTERVAL = 2000; // 2 seconds
-        let activeToasts = [];
-        const MAX_TOASTS = 3;
+const CHECKPOINT_TIME = 45;       // 체크포인트마다 추가되는 시간(초)
+const CHECKPOINT_DIST = 18000;    // 체크포인트 간격(세그먼트 z 단위 아님, 누적거리)
 
-        // Company Data (변동성 1/3로 감소)
-        const companyData = [{"id":1,"name":"바나나","ticker":"BANN","sector":"테크/IT","initialPrice":85000,"baseVolatilityPerTick":0.0022},{"id":2,"name":"샘 솔루션","ticker":"SSOL","sector":"테크/IT","initialPrice":72000,"baseVolatilityPerTick":0.0022},{"id":3,"name":"소미텍","ticker":"SOMI","sector":"테크/IT","initialPrice":125000,"baseVolatilityPerTick":0.0022},{"id":4,"name":"서니","ticker":"SUNY","sector":"테크/IT","initialPrice":45000,"baseVolatilityPerTick":0.0044},{"id":5,"name":"흐웨이","ticker":"HWEI","sector":"테크/IT","initialPrice":32000,"baseVolatilityPerTick":0.0044},{"id":6,"name":"Cloz AI","ticker":"CLZA","sector":"테크/IT","initialPrice":150000,"baseVolatilityPerTick":0.0081},{"id":7,"name":"루트 테크놀로지","ticker":"RRTN","sector":"테크/IT","initialPrice":58000,"baseVolatilityPerTick":0.0128},{"id":8,"name":"ZPT","ticker":"ZPTT","sector":"테크/IT","initialPrice":210000,"baseVolatilityPerTick":0.0081},{"id":9,"name":"모르모트제약","ticker":"MRMT","sector":"바이오/제약","initialPrice":120000,"baseVolatilityPerTick":0.0117},{"id":10,"name":"무한제약","ticker":"MUHN","sector":"바이오/제약","initialPrice":88000,"baseVolatilityPerTick":0.0117},{"id":11,"name":"HBM 바이오","ticker":"HBMB","sector":"바이오/제약","initialPrice":45000,"baseVolatilityPerTick":0.0187},{"id":12,"name":"롱헤어연구소","ticker":"LHRL","sector":"바이오/제약","initialPrice":23000,"baseVolatilityPerTick":0.0187},{"id":13,"name":"안주거제약","ticker":"AZGB","sector":"바이오/제약","initialPrice":65000,"baseVolatilityPerTick":0.0187},{"id":14,"name":"한대자동차","ticker":"HAND","sector":"자동차/에너지","initialPrice":190000,"baseVolatilityPerTick":0.002},{"id":15,"name":"기어자동차","ticker":"GEAR","sector":"자동차/에너지","initialPrice":85000,"baseVolatilityPerTick":0.002},{"id":16,"name":"한국자동차","ticker":"HGCA","sector":"자동차/에너지","initialPrice":12000,"baseVolatilityPerTick":0.002},{"id":17,"name":"인도오일","ticker":"INDO","sector":"자동차/에너지","initialPrice":68000,"baseVolatilityPerTick":0.004},{"id":18,"name":"만슬라오일","ticker":"MSLO","sector":"자동차/에너지","initialPrice":110000,"baseVolatilityPerTick":0.004},{"id":19,"name":"호르몬플라스틱","ticker":"HMPL","sector":"자동차/에너지","initialPrice":150000,"baseVolatilityPerTick":0.004},{"id":20,"name":"두대중공업","ticker":"DDHV","sector":"자동차/에너지","initialPrice":18000,"baseVolatilityPerTick":0.002},{"id":21,"name":"무력중공업","ticker":"MRHV","sector":"자동차/에너지","initialPrice":22000,"baseVolatilityPerTick":0.0073},{"id":22,"name":"애플릭스","ticker":"APLX","sector":"엔터테인먼트","initialPrice":420000,"baseVolatilityPerTick":0.0028},{"id":23,"name":"티브잉","ticker":"TVNG","sector":"엔터테인먼트","initialPrice":85000,"baseVolatilityPerTick":0.0103},{"id":24,"name":"사과TV","ticker":"APTV","sector":"엔터테인먼트","initialPrice":125000,"baseVolatilityPerTick":0.0056},{"id":25,"name":"PJY엔터테인먼트","ticker":"PJYE","sector":"엔터테인먼트","initialPrice":68000,"baseVolatilityPerTick":0.0103},{"id":26,"name":"MS엔터테인먼트","ticker":"MSET","sector":"엔터테인먼트","initialPrice":150000,"baseVolatilityPerTick":0.0103},{"id":27,"name":"하이파이브","ticker":"HIFI","sector":"엔터테인먼트","initialPrice":250000,"baseVolatilityPerTick":0.0056},{"id":28,"name":"22세기 영화사","ticker":"EEMV","sector":"엔터테인먼트","initialPrice":8000,"baseVolatilityPerTick":0.0163},{"id":29,"name":"브라더스","ticker":"BRTS","sector":"엔터테인먼트","initialPrice":5500,"baseVolatilityPerTick":0.0163},{"id":30,"name":"캘리포니아무비","ticker":"CLMV","sector":"엔터테인먼트","initialPrice":12000,"baseVolatilityPerTick":0.0163},{"id":31,"name":"마마존","ticker":"MMZN","sector":"생활/식품","initialPrice":180000,"baseVolatilityPerTick":0.0016},{"id":32,"name":"코스트카","ticker":"CSTK","sector":"생활/식품","initialPrice":350000,"baseVolatilityPerTick":0.0016},{"id":33,"name":"위마트","ticker":"WEMA","sector":"생활/식품","initialPrice":45000,"baseVolatilityPerTick":0.0059},{"id":34,"name":"곰팡","ticker":"GOMP","sector":"생활/식품","initialPrice":28000,"baseVolatilityPerTick":0.0032},{"id":35,"name":"쓰윽쇼핑","ticker":"SSUK","sector":"생활/식품","initialPrice":150000,"baseVolatilityPerTick":0.0059},{"id":36,"name":"소년나라","ticker":"SNNA","sector":"생활/식품","initialPrice":3500,"baseVolatilityPerTick":0.0093},{"id":37,"name":"유신사","ticker":"YUSS","sector":"생활/식품","initialPrice":120000,"baseVolatilityPerTick":0.0059},{"id":38,"name":"블루라이너","ticker":"BLLN","sector":"교통/항공","initialPrice":28000,"baseVolatilityPerTick":0.0024},{"id":39,"name":"와이라노항공","ticker":"WRAR","sector":"교통/항공","initialPrice":22000,"baseVolatilityPerTick":0.0048},{"id":40,"name":"노라타항공","ticker":"NORA","sector":"교통/항공","initialPrice":12000,"baseVolatilityPerTick":0.014},{"id":41,"name":"ZWAY","ticker":"ZWAY","sector":"교통/항공","initialPrice":9500,"baseVolatilityPerTick":0.014},{"id":42,"name":"청바지에어","ticker":"JEAN","sector":"교통/항공","initialPrice":18000,"baseVolatilityPerTick":0.014},{"id":43,"name":"광속고속철도","ticker":"GSRW","sector":"교통/항공","initialPrice":45000,"baseVolatilityPerTick":0.0048},{"id":44,"name":"서브웨이어","ticker":"SBWR","sector":"교통/항공","initialPrice":5000,"baseVolatilityPerTick":0.0048}];
+let segments = [];
+let trackLength = 0;
 
-        // News Templates (영향력 감소)
-        const newsTemplates = {
-            company: [
-                { title: "신제품 출시 발표", impact: 0.015, duration: 15 },
-                { title: "분기 실적 호조", impact: 0.012, duration: 10 },
-                { title: "CEO 교체 발표", impact: -0.01, duration: 10 },
-                { title: "대규모 투자 유치", impact: 0.02, duration: 15 },
-                { title: "영업이익 감소", impact: -0.015, duration: 10 },
-                { title: "신규 사업 진출", impact: 0.01, duration: 15 },
-                { title: "리콜 사태 발생", impact: -0.025, duration: 20 }
-            ],
-            sector: [
-                { title: "업종 전망 상향", impact: 0.01, duration: 15 },
-                { title: "규제 강화 예정", impact: -0.012, duration: 20 },
-                { title: "업계 호황 지속", impact: 0.008, duration: 10 },
-                { title: "경쟁 심화", impact: -0.008, duration: 15 }
-            ],
-            market: [
-                { title: "금리 인하 단행", impact: 0.015, duration: 25 },
-                { title: "경기 침체 우려", impact: -0.02, duration: 25 },
-                { title: "외국인 매수세 증가", impact: 0.01, duration: 15 },
-                { title: "글로벌 불확실성 확대", impact: -0.012, duration: 20 }
-            ]
-        };
+function lastY(){ return segments.length ? segments[segments.length-1].p2.world.y : 0; }
 
-        // Initialize
-        function init() {
-            gameState.market.companies = companyData.map(c => ({
-                ...c,
-                newsTimes: []
-            }));
+function addSegment(curve, y){
+  const n = segments.length;
+  segments.push({
+    index:n,
+    p1:{ world:{ y:lastY(), z:n*SEG_LEN }, camera:{}, screen:{} },
+    p2:{ world:{ y:y,        z:(n+1)*SEG_LEN }, camera:{}, screen:{} },
+    curve:curve,
+    cars:[],
+    color: Math.floor(n/RUMBLE)%2
+  });
+}
+function addRoad(enter, hold, leave, curve, hillY){
+  const startY = lastY();
+  const endY   = startY + hillY * SEG_LEN;
+  const total  = enter + hold + leave;
+  const easeIn  = t => t*t;
+  const easeInOut = t => -Math.cos(t*Math.PI)/2 + .5;
+  for(let i=0;i<enter;i++)  addSegment(curve*easeIn(i/enter),               startY + (endY-startY)*easeInOut(i/total));
+  for(let i=0;i<hold;i++)   addSegment(curve,                               startY + (endY-startY)*easeInOut((enter+i)/total));
+  for(let i=0;i<leave;i++)  addSegment(curve*(1-easeIn(i/leave)),           startY + (endY-startY)*easeInOut((enter+hold+i)/total));
+}
+const R = { NONE:0, EASY:2, MED:4, HARD:6 };
+const L = { SHORT:25, MED:50, LONG:100 };
+const HILL = { NONE:0, LOW:20, MED:40, HIGH:60 };
 
-            gameState.market.companies.forEach(company => {
-                gameState.market.prices[company.id] = company.initialPrice;
-                gameState.market.previousClosePrices[company.id] = company.initialPrice;
-                gameState.market.candleHistory[company.id] = [{
-                    open: company.initialPrice,
-                    high: company.initialPrice,
-                    low: company.initialPrice,
-                    close: company.initialPrice
-                }];
-            });
+function buildTrack(){
+  segments = [];
+  addRoad(L.SHORT, L.LONG, L.SHORT, R.NONE, HILL.NONE);          // 직선 출발
+  addRoad(L.MED, L.MED, L.MED,  R.EASY,  HILL.LOW);
+  addRoad(L.MED, L.MED, L.MED, -R.MED,   HILL.NONE);
+  addRoad(L.SHORT, L.MED, L.SHORT, R.NONE, -HILL.MED);
+  addRoad(L.MED, L.LONG, L.MED,  R.HARD,  HILL.NONE);
+  addRoad(L.MED, L.MED, L.MED, -R.EASY,  HILL.MED);
+  addRoad(L.SHORT, L.SHORT, L.SHORT, R.NONE, HILL.NONE);
+  addRoad(L.MED, L.LONG, L.MED, -R.HARD, -HILL.LOW);
+  addRoad(L.MED, L.MED, L.MED,  R.MED,   HILL.HIGH);
+  addRoad(L.MED, L.MED, L.MED,  R.EASY, -HILL.HIGH);
+  addRoad(L.SHORT, L.LONG, L.SHORT, R.NONE, HILL.NONE);
+  addRoad(L.MED, L.MED, L.MED, -R.MED,   HILL.LOW);
+  trackLength = segments.length * SEG_LEN;
+}
 
-            renderFilters();
-            renderStockList();
-            updateDisplay();
-            setupEventDelegation();
-            startGameTimer();
+/* ---------- 차량(트래픽) ---------- */
+const CAR_COLORS = [
+  ['#3d7bd6','#2a5aa8'], ['#f2b134','#c98c1b'], ['#5cb56a','#3d8c4b'],
+  ['#9b6dd6','#7649ad'], ['#e0e4e8','#aab2bb'], ['#37b8c4','#23919c']
+];
+let traffic = [];
+function spawnTraffic(count){
+  traffic = [];
+  for(let i=0;i<count;i++){
+    const offset = (Math.random()*1.6 - 0.8);
+    const z = Math.random()*trackLength;
+    const speed = MAX_SPEED * (0.18 + Math.random()*0.32);
+    const color = CAR_COLORS[i % CAR_COLORS.length];
+    const car = { offset, z, speed, color, passed:false };
+    traffic.push(car);
+  }
+}
+
+/* ---------- 게임 상태 ---------- */
+const state = {
+  running:false, paused:false, over:false,
+  position:0,        // 트랙 z 위치
+  playerX:0,         // -1 ~ 1
+  speed:0,
+  totalDist:0,
+  timeLeft:60,
+  score:0, best:0,
+  passCount:0,
+  nextCheckpoint:CHECKPOINT_DIST,
+  shake:0
+};
+const keys = {};
+
+addEventListener('keydown', e=>{
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+  keys[e.key.toLowerCase()] = true;
+  if(e.key.toLowerCase()==='p' && state.running && !state.over) togglePause();
+  if(e.key.toLowerCase()==='r' && state.over) startGame();
+});
+addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
+
+const up    = ()=> keys['arrowup']||keys['w'];
+const down  = ()=> keys['arrowdown']||keys['s'];
+const left  = ()=> keys['arrowleft']||keys['a'];
+const right = ()=> keys['arrowright']||keys['d'];
+
+/* ---------- 유틸 ---------- */
+const clamp = (v,a,b)=> Math.max(a, Math.min(b,v));
+const lerp  = (a,b,t)=> a+(b-a)*t;
+function findSegment(z){
+  return segments[Math.floor(z/SEG_LEN) % segments.length];
+}
+function project(p, camX, camY, camZ){
+  p.camera.x = -camX;
+  p.camera.y = p.world.y - camY;
+  p.camera.z = p.world.z - camZ;
+  if(p.camera.z <= 0) p.camera.z = 0.01;
+  const scale = CAM_DEPTH / p.camera.z;
+  p.screen.scale = scale;
+  p.screen.x = Math.round(W/2 + scale * p.camera.x * W/2);
+  p.screen.y = Math.round(H/2 - scale * p.camera.y * H/2);
+  p.screen.w = Math.round(scale * ROAD_W * W/2);
+}
+
+/* ---------- 렌더링 ---------- */
+const COLORS = {
+  light:{ road:'#8c8c94', grass:'#b8cf7e', rumble:'#fffdf6', lane:'#fffdf6', sea:'#2a8fa3' },
+  dark: { road:'#84848c', grass:'#a9c271', rumble:'#e8543f', lane:null,      sea:'#27889b' }
+};
+
+function drawPolygon(x1,y1,x2,y2,x3,y3,x4,y4,color){
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.lineTo(x3,y3); ctx.lineTo(x4,y4);
+  ctx.closePath(); ctx.fill();
+}
+
+function drawBackground(baseSeg, playerY){
+  // 하늘
+  const sky = ctx.createLinearGradient(0,0,0,H*0.62);
+  sky.addColorStop(0,'#6cc0e0');
+  sky.addColorStop(0.75,'#cfe9d8');
+  sky.addColorStop(1,'#fdf3d8');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0,0,W,H);
+  // 태양
+  ctx.fillStyle = 'rgba(255,236,170,.9)';
+  ctx.beginPath(); ctx.arc(W*0.78, H*0.2, 46, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,236,170,.35)';
+  ctx.beginPath(); ctx.arc(W*0.78, H*0.2, 70, 0, Math.PI*2); ctx.fill();
+  // 먼 산
+  ctx.fillStyle = '#8fb8a8';
+  ctx.beginPath();
+  ctx.moveTo(0,H*0.5);
+  const off = (state.position/trackLength)*200 % W;
+  for(let x=0;x<=W;x+=40){
+    const h = Math.sin((x+off)*0.013)*30 + Math.sin((x+off)*0.004)*55;
+    ctx.lineTo(x, H*0.46 - Math.max(0,h));
+  }
+  ctx.lineTo(W,H*0.5); ctx.closePath(); ctx.fill();
+}
+
+function drawCarSprite(x, y, w, colors, isPlayer, steer){
+  // w = 화면상 차폭
+  const h = w*0.62;
+  ctx.save();
+  ctx.translate(x, y);
+  if(isPlayer) ctx.rotate(steer*0.05);
+  // 그림자
+  ctx.fillStyle = 'rgba(0,0,0,.28)';
+  ctx.beginPath(); ctx.ellipse(0, h*0.06, w*0.55, h*0.16, 0, 0, Math.PI*2); ctx.fill();
+  // 차체
+  ctx.fillStyle = colors[1];
+  roundRect(-w/2, -h*0.78, w, h*0.82, w*0.1); ctx.fill();
+  ctx.fillStyle = colors[0];
+  roundRect(-w/2*0.96, -h*0.84, w*0.96, h*0.74, w*0.1); ctx.fill();
+  // 캐빈(유리)
+  ctx.fillStyle = '#202c36';
+  roundRect(-w*0.32, -h*0.74, w*0.64, h*0.3, w*0.07); ctx.fill();
+  // 범퍼/후미등
+  ctx.fillStyle = isPlayer ? '#ff5a45' : '#ffd76a';
+  roundRect(-w*0.42, -h*0.26, w*0.16, h*0.1, 2); ctx.fill();
+  roundRect( w*0.26, -h*0.26, w*0.16, h*0.1, 2); ctx.fill();
+  // 타이어
+  ctx.fillStyle = '#1a1f24';
+  roundRect(-w*0.54, -h*0.2, w*0.12, h*0.22, 2); ctx.fill();
+  roundRect( w*0.42, -h*0.2, w*0.12, h*0.22, 2); ctx.fill();
+  ctx.restore();
+}
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+
+function render(){
+  const baseSeg = findSegment(state.position);
+  const basePercent = (state.position % SEG_LEN) / SEG_LEN;
+  const playerSeg = findSegment(state.position + CAM_DEPTH*CAM_H);
+  const playerY = lerp(playerSeg.p1.world.y, playerSeg.p2.world.y, basePercent);
+
+  const shakeX = (Math.random()-0.5)*state.shake;
+  const shakeY = (Math.random()-0.5)*state.shake;
+  ctx.save();
+  ctx.translate(shakeX, shakeY);
+
+  drawBackground(baseSeg, playerY);
+
+  let maxY = H;
+  let x = 0, dx = -(baseSeg.curve * basePercent);
+
+  const camZ = state.position - (state.position % SEG_LEN);
+
+  // 도로 + 지형
+  for(let n=0; n<DRAW_DIST; n++){
+    const seg = segments[(baseSeg.index + n) % segments.length];
+    const looped = seg.index < baseSeg.index;
+    const camAdjZ = camZ + (looped ? trackLength : 0);
+
+    project(seg.p1, state.playerX*ROAD_W - x,      playerY + CAM_H, camAdjZ);
+    project(seg.p2, state.playerX*ROAD_W - x - dx, playerY + CAM_H, camAdjZ);
+    x += dx; dx += seg.curve;
+    seg.clip = maxY;
+
+    if(seg.p1.camera.z <= CAM_DEPTH || seg.p2.screen.y >= maxY || seg.p2.screen.y >= seg.p1.screen.y) continue;
+
+    const c = seg.color ? COLORS.dark : COLORS.light;
+    const p1 = seg.p1.screen, p2 = seg.p2.screen;
+
+    // 왼쪽=바다, 오른쪽=초지
+    ctx.fillStyle = c.sea;
+    ctx.fillRect(0, p2.y, W, p1.y - p2.y);
+    ctx.fillStyle = c.grass;
+    ctx.fillRect(W/2, p2.y, W/2, p1.y - p2.y);
+    // 도로 기준 좌우 분리: 도로 왼쪽 바깥은 바다, 오른쪽 바깥은 초지
+    drawPolygon(p1.x - p1.w*1.0, p1.y, p1.x + p1.w*1.0, p1.y, p2.x + p2.w*1.0, p2.y, p2.x - p2.w*1.0, p2.y, c.grass);
+    // 모래(바다쪽 경계)
+    drawPolygon(p1.x - p1.w*1.25, p1.y, p1.x - p1.w*0.98, p1.y, p2.x - p2.w*0.98, p2.y, p2.x - p2.w*1.25, p2.y, '#e8d9a8');
+    ctx.fillStyle = c.sea;
+    ctx.beginPath();
+    ctx.moveTo(0, p1.y); ctx.lineTo(p1.x - p1.w*1.25, p1.y);
+    ctx.lineTo(p2.x - p2.w*1.25, p2.y); ctx.lineTo(0, p2.y);
+    ctx.closePath(); ctx.fill();
+
+    // 럼블
+    drawPolygon(p1.x - p1.w*1.0, p1.y, p1.x - p1.w*0.94, p1.y, p2.x - p2.w*0.94, p2.y, p2.x - p2.w*1.0, p2.y, c.rumble);
+    drawPolygon(p1.x + p1.w*0.94, p1.y, p1.x + p1.w*1.0, p1.y, p2.x + p2.w*1.0, p2.y, p2.x + p2.w*0.94, p2.y, c.rumble);
+    // 도로
+    drawPolygon(p1.x - p1.w*0.94, p1.y, p1.x + p1.w*0.94, p1.y, p2.x + p2.w*0.94, p2.y, p2.x - p2.w*0.94, p2.y, c.road);
+    // 차선
+    if(c.lane){
+      const lw1 = p1.w*0.94*2/LANES, lw2 = p2.w*0.94*2/LANES;
+      const lm1 = p1.w*0.01, lm2 = p2.w*0.01;
+      for(let lane=1; lane<LANES; lane++){
+        const lx1 = p1.x - p1.w*0.94 + lw1*lane;
+        const lx2 = p2.x - p2.w*0.94 + lw2*lane;
+        drawPolygon(lx1-lm1, p1.y, lx1+lm1, p1.y, lx2+lm2, p2.y, lx2-lm2, p2.y, c.lane);
+      }
+    }
+    maxY = p2.y;
+  }
+
+  // 트래픽 (뒤에서 앞으로)
+  for(let n=DRAW_DIST-1; n>0; n--){
+    const seg = segments[(baseSeg.index + n) % segments.length];
+    for(const car of seg.cars){
+      const p = seg.p1;
+      if(p.camera.z <= CAM_DEPTH) continue;
+      const scale = p.screen.scale;
+      const carX = p.screen.x + scale * car.offset * ROAD_W * W/2;
+      const carY = p.screen.y;
+      const carW = scale * ROAD_W * W/2 * 0.42;
+      if(carY < seg.clip) drawCarSprite(carX, carY, Math.max(carW, 4), car.color, false, 0);
+    }
+  }
+
+  // 플레이어 차
+  const steer = (left()? -1 : right()? 1 : 0) * clamp(state.speed/MAX_SPEED, 0, 1);
+  const bounce = Math.sin(performance.now()/40) * clamp(state.speed/MAX_SPEED,0,1) * 1.6;
+  drawCarSprite(W/2, H - 38 + bounce, 150, ['#e8543f','#b93a28'], true, steer);
+
+  // 속도감 라인
+  const sp = state.speed/MAX_SPEED;
+  if(sp > 0.7){
+    ctx.strokeStyle = `rgba(255,255,255,${(sp-0.7)*0.9})`;
+    ctx.lineWidth = 2;
+    for(let i=0;i<8;i++){
+      const a = Math.random()*Math.PI*2;
+      const r1 = 280 + Math.random()*60, r2 = r1 + 50 + Math.random()*80;
+      ctx.beginPath();
+      ctx.moveTo(W/2 + Math.cos(a)*r1, H/2 + Math.sin(a)*r1*0.7);
+      ctx.lineTo(W/2 + Math.cos(a)*r2, H/2 + Math.sin(a)*r2*0.7);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+/* ---------- 업데이트 ---------- */
+function updateTraffic(dt, playerSeg){
+  for(const car of traffic){
+    const oldSeg = findSegment(car.z);
+    car.z += car.speed * dt;
+    if(car.z >= trackLength) { car.z -= trackLength; car.passed = false; }
+    const newSeg = findSegment(car.z);
+    if(oldSeg !== newSeg){
+      const idx = oldSeg.cars.indexOf(car);
+      if(idx>-1) oldSeg.cars.splice(idx,1);
+      newSeg.cars.push(car);
+    }
+    // 추월 점수
+    if(!car.passed){
+      const rel = (car.z - state.position + trackLength) % trackLength;
+      if(rel > trackLength*0.5){ // 플레이어가 지나침
+        car.passed = true;
+        if(state.speed > car.speed){
+          state.passCount++;
+          state.score += 200;
+          flashMsg('+200 추월!');
         }
-
-        // Setup Event Delegation
-        function setupEventDelegation() {
-            // Stock list click delegation
-            document.getElementById('stockList').addEventListener('click', (e) => {
-                const stockItem = e.target.closest('.stock-item');
-                if (stockItem) {
-                    const companyId = parseInt(stockItem.dataset.companyId);
-                    if (companyId) openStockDetail(companyId);
-                }
-            });
-
-            // Portfolio list click delegation
-            document.getElementById('portfolioList').addEventListener('click', (e) => {
-                const portfolioItem = e.target.closest('.portfolio-item');
-                if (portfolioItem) {
-                    const companyId = parseInt(portfolioItem.dataset.companyId);
-                    if (companyId) openStockDetail(companyId);
-                }
-            });
-        }
-
-        // Game Timer
-        function startGameTimer() {
-            function gameLoop(timestamp) {
-                if (timestamp - lastTickTime >= TICK_INTERVAL) {
-                    if (!gameState.isPaused && !gameState.isClosed) {
-                        gameTick();
-                    }
-                    lastTickTime = timestamp;
-                }
-                gameTimer = requestAnimationFrame(gameLoop);
-            }
-
-            if (gameTimer) cancelAnimationFrame(gameTimer);
-            lastTickTime = performance.now();
-            gameTimer = requestAnimationFrame(gameLoop);
-        }
-
-        function gameTick() {
-            gameState.timeMinutes += 5;
-
-            if (gameState.timeMinutes === 540) {
-                gameState.isClosed = false;
-                showToast('🔔 거래소 개장!');
-            }
-
-            if (gameState.timeMinutes > 930) {
-                gameState.isClosed = true;
-                gameState.timeMinutes = 930;
-
-                // 전일 종가 저장
-                gameState.market.companies.forEach(company => {
-                    gameState.market.previousClosePrices[company.id] = gameState.market.prices[company.id];
-                });
-
-                document.getElementById('nextDayBtn').style.display = 'block';
-                document.getElementById('pauseBtn').style.display = 'none';
-                showToast('🔔 거래소 폐장');
-                return;
-            }
-
-            if (gameState.timeMinutes >= 540 && gameState.timeMinutes <= 930) {
-                if (Math.random() < 0.1) {
-                    generateNews();
-                }
-
-                gameState.market.marketMood += (Math.random() - 0.5) * 0.005;
-                gameState.market.marketMood = Math.max(-0.03, Math.min(0.03, gameState.market.marketMood));
-
-                // Lazy price updates: only update prices for visible/needed stocks
-                const companiesToUpdate = new Set();
-
-                // Always update stocks in portfolio
-                gameState.portfolio.forEach(holding => {
-                    const company = gameState.market.companies.find(c => c.id === holding.companyId);
-                    if (company) companiesToUpdate.add(company);
-                });
-
-                // If stock modal is open, update that stock
-                if (currentStockId) {
-                    const company = gameState.market.companies.find(c => c.id === currentStockId);
-                    if (company) companiesToUpdate.add(company);
-                }
-
-                // If stocks panel is active, update visible stocks
-                if (document.getElementById('stocksPanel').classList.contains('active')) {
-                    const visibleCompanies = gameState.selectedSector === '전체' ?
-                        gameState.market.companies :
-                        gameState.market.companies.filter(c => c.sector === gameState.selectedSector);
-                    visibleCompanies.forEach(company => companiesToUpdate.add(company));
-                }
-
-                // Update all identified companies
-                companiesToUpdate.forEach(company => {
-                    updatePrice(company);
-                });
-            }
-
-            updateDisplay();
-            if (document.getElementById('stocksPanel').classList.contains('active')) {
-                renderStockList();
-            }
-        }
-
-        function togglePause() {
-            gameState.isPaused = !gameState.isPaused;
-            document.getElementById('pauseBtn').textContent = gameState.isPaused ? '▶️' : '⏸️';
-            showToast(gameState.isPaused ? '⏸️ 일시정지' : '▶️ 재생');
-        }
-
-        function nextDay() {
-            gameState.day++;
-            gameState.timeMinutes = 480;
-            gameState.isClosed = false;
-            document.getElementById('nextDayBtn').style.display = 'none';
-            document.getElementById('pauseBtn').style.display = 'block';
-            updateDisplay();
-            showToast(`📅 Day ${gameState.day} 시작`);
-        }
-
-        // Update Display
-        function updateDisplay() {
-            const hours = Math.floor(gameState.timeMinutes / 60);
-            const minutes = gameState.timeMinutes % 60;
-            const timeStr = `${gameState.day}일 ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-
-            document.getElementById('timeDisplay').textContent = gameState.isClosed ? `${gameState.day}일 폐장` : timeStr;
-            document.getElementById('cashDisplay').textContent = formatMoneyWon(gameState.cash);
-            document.getElementById('brokerageDisplay').textContent = formatMoneyWon(gameState.brokerageCash);
-        }
-
-        function calculateStockValue() {
-            return gameState.portfolio.reduce((sum, holding) => {
-                const currentPrice = gameState.market.prices[holding.companyId];
-                return sum + (currentPrice * holding.qty);
-            }, 0);
-        }
-
-        function formatMoney(amount) {
-            return new Intl.NumberFormat('ko-KR').format(Math.floor(amount)) + ' ₩';
-        }
-
-        function formatMoneyWon(amount) {
-            return new Intl.NumberFormat('ko-KR').format(Math.floor(amount)) + '원';
-        }
-
-        // Render Filters
-        function renderFilters() {
-            const sectors = ['전체', ...new Set(companyData.map(c => c.sector))];
-            document.getElementById('filterButtons').innerHTML = sectors.map(sector =>
-                `<button class="filter-btn ${sector === '전체' ? 'active' : ''}" onclick="filterSector('${sector}')">${sector}</button>`
-            ).join('');
-        }
-
-        function filterSector(sector) {
-            gameState.selectedSector = sector;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent === sector);
-            });
-            renderStockList();
-        }
-
-        // Render Stock List
-        function renderStockList() {
-            const container = document.getElementById('stockList');
-            const filtered = gameState.selectedSector === '전체' ?
-                gameState.market.companies :
-                gameState.market.companies.filter(c => c.sector === gameState.selectedSector);
-
-            // Check if we need full re-render (sector change or initial render)
-            const existingItems = container.querySelectorAll('.stock-item');
-            const needsFullRender = existingItems.length !== filtered.length ||
-                                   (existingItems.length > 0 &&
-                                    parseInt(existingItems[0].dataset.companyId) !== filtered[0].id);
-
-            if (needsFullRender) {
-                // Full render when filter changes
-                container.innerHTML = filtered.map(company => {
-                    const firstLetter = company.name.charAt(0);
-
-                    return `
-                        <div class="stock-item" data-company-id="${company.id}">
-                            <div class="stock-info">
-                                <div class="stock-logo">${firstLetter}</div>
-                                <div class="stock-details">
-                                    <div class="stock-name">${company.name}</div>
-                                    <div class="stock-ticker">${company.ticker}</div>
-                                </div>
-                            </div>
-                            <div class="stock-price">
-                                <div class="price" data-price></div>
-                                <div class="change" data-change></div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            // Update only prices and changes (always runs)
-            filtered.forEach(company => {
-                const item = container.querySelector(`[data-company-id="${company.id}"]`);
-                if (!item) return;
-
-                const price = gameState.market.prices[company.id];
-                const prevClose = gameState.market.previousClosePrices[company.id];
-                const change = ((price - prevClose) / prevClose * 100);
-                const changeAmount = price - prevClose;
-
-                const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-                const changeSymbol = change > 0 ? '+' : '';
-
-                const priceEl = item.querySelector('[data-price]');
-                const changeEl = item.querySelector('[data-change]');
-
-                if (priceEl) priceEl.textContent = formatMoneyWon(price);
-                if (changeEl) {
-                    changeEl.textContent = `${changeSymbol}${formatMoneyWon(changeAmount)} (${changeSymbol}${change.toFixed(2)}%)`;
-                    changeEl.className = `change ${changeClass}`;
-                }
-            });
-        }
-
-        // Update Price
-        function updatePrice(company) {
-            const currentPrice = gameState.market.prices[company.id];
-            const candleHistory = gameState.market.candleHistory[company.id];
-            const currentCandle = candleHistory[candleHistory.length - 1];
-
-            const decay = 180;
-            let issueIndex = 0;
-            company.newsTimes.forEach(newsTick => {
-                const age = gameState.timeMinutes - newsTick;
-                const weight = Math.exp(-age / decay);
-                issueIndex += weight;
-            });
-            issueIndex = Math.min(issueIndex / 5, 1);
-
-            const randomChange = (Math.random() - 0.5) * company.baseVolatilityPerTick * 2;
-            const moodEffect = gameState.market.marketMood * 0.5;
-
-            let newsEffect = 0;
-            // Use cached news instead of filtering
-            const activeNews = [
-                ...(gameState.newsCache.company[company.id] || []),
-                ...(gameState.newsCache.sector[company.sector] || []),
-                ...gameState.newsCache.market
-            ];
-
-            activeNews.forEach(news => {
-                if (news.timestampMinutes === gameState.timeMinutes) {
-                    newsEffect += news.impactNow;
-                }
-
-                const ticksSinceNews = (gameState.timeMinutes - news.timestampMinutes) / 5;
-                if (ticksSinceNews > 0 && ticksSinceNews <= news.impactDuration) {
-                    newsEffect += news.impactPerTick;
-                }
-            });
-
-            const totalChange = randomChange + moodEffect + newsEffect;
-            const newPrice = Math.max(100, Math.floor(currentPrice * (1 + totalChange)));
-
-            // Update candle data
-            currentCandle.close = newPrice;
-            currentCandle.high = Math.max(currentCandle.high, newPrice);
-            currentCandle.low = Math.min(currentCandle.low, newPrice);
-
-            gameState.market.prices[company.id] = newPrice;
-
-            // Every 30 minutes (6 ticks), create new candle
-            const ticksSinceOpen = (gameState.timeMinutes - 540) / 5;
-            if (ticksSinceOpen > 0 && ticksSinceOpen % 6 === 0) {
-                candleHistory.push({
-                    open: newPrice,
-                    high: newPrice,
-                    low: newPrice,
-                    close: newPrice
-                });
-            }
-
-            if (candleHistory.length > 30) {
-                candleHistory.shift();
-            }
-        }
-
-        // Update News Cache
-        function updateNewsCache() {
-            gameState.newsCache.company = {};
-            gameState.newsCache.sector = {};
-            gameState.newsCache.market = [];
-
-            gameState.news.forEach(n => {
-                if (n.scope === 'company') {
-                    if (!gameState.newsCache.company[n.targetId]) {
-                        gameState.newsCache.company[n.targetId] = [];
-                    }
-                    gameState.newsCache.company[n.targetId].push(n);
-                } else if (n.scope === 'sector') {
-                    if (!gameState.newsCache.sector[n.targetId]) {
-                        gameState.newsCache.sector[n.targetId] = [];
-                    }
-                    gameState.newsCache.sector[n.targetId].push(n);
-                } else if (n.scope === 'market') {
-                    gameState.newsCache.market.push(n);
-                }
-            });
-        }
-
-        // Generate News
-        function generateNews() {
-            const scopes = ['company', 'sector', 'market'];
-            const scope = scopes[Math.floor(Math.random() * scopes.length)];
-
-            let targetId, targetName;
-
-            if (scope === 'company') {
-                const company = gameState.market.companies[Math.floor(Math.random() * gameState.market.companies.length)];
-                targetId = company.id;
-                targetName = company.name;
-                company.newsTimes.push(gameState.timeMinutes);
-                if (company.newsTimes.length > 10) company.newsTimes.shift();
-            } else if (scope === 'sector') {
-                const sectors = [...new Set(gameState.market.companies.map(c => c.sector))];
-                targetId = sectors[Math.floor(Math.random() * sectors.length)];
-                targetName = targetId;
-            } else {
-                targetId = 'market';
-                targetName = '전체 시장';
-            }
-
-            const templates = newsTemplates[scope];
-            const template = templates[Math.floor(Math.random() * templates.length)];
-
-            const news = {
-                id: gameState.news.length + 1,
-                timestampMinutes: gameState.timeMinutes,
-                day: gameState.day,
-                timeStr: formatTime(gameState.timeMinutes),
-                title: template.title,
-                description: `${targetName}에 대한 ${template.title.toLowerCase()} 소식`,
-                scope: scope,
-                targetId: targetId,
-                impactNow: template.impact,
-                impactDuration: template.duration,
-                impactPerTick: template.impact / template.duration * 0.3
-            };
-
-            gameState.news.unshift(news);
-            if (gameState.news.length > 50) gameState.news.pop();
-
-            // Update news cache
-            updateNewsCache();
-        }
-
-        function formatTime(minutes) {
-            const h = Math.floor(minutes / 60);
-            const m = minutes % 60;
-            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        }
-
-        // Open Stock Detail
-        function openStockDetail(companyId) {
-            currentStockId = companyId;
-            const company = gameState.market.companies.find(c => c.id === companyId);
-            const price = gameState.market.prices[companyId];
-            const prevClose = gameState.market.previousClosePrices[companyId];
-            const change = ((price - prevClose) / prevClose * 100);
-            const changeAmount = price - prevClose;
-
-            document.getElementById('modalStockName').textContent = company.name;
-            document.getElementById('modalStockTicker').textContent = `${company.ticker} · ${company.sector}`;
-            document.getElementById('modalStockPrice').textContent = formatMoneyWon(price);
-
-            const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-            const changeSymbol = change > 0 ? '+' : '';
-            document.getElementById('modalStockChange').innerHTML =
-                `<span class="${changeClass}">${changeSymbol}${formatMoneyWon(changeAmount)} (${changeSymbol}${change.toFixed(2)}%)</span>`;
-
-            renderMiniChart(gameState.market.candleHistory[companyId]);
-
-            // Holding Info
-            const holding = gameState.portfolio.find(h => h.companyId === companyId);
-            if (holding) {
-                const pnl = (price - holding.avgCost) * holding.qty;
-                const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
-                const pnlClass = pnl >= 0 ? 'positive' : 'negative';
-
-                document.getElementById('holdingInfo').style.display = 'block';
-                document.getElementById('holdingInfo').innerHTML = `
-                    <div class="holding-row">
-                        <span>보유 수량</span>
-                        <span>${holding.qty.toLocaleString()}주</span>
-                    </div>
-                    <div class="holding-row">
-                        <span>평균 매입가</span>
-                        <span>${formatMoneyWon(holding.avgCost)}</span>
-                    </div>
-                    <div class="holding-row">
-                        <span>평가 손익</span>
-                        <span class="${pnlClass}">${formatMoneyWon(pnl)} (${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>
-                    </div>
-                `;
-            } else {
-                document.getElementById('holdingInfo').style.display = 'none';
-            }
-
-            // Trade Section
-            const canTrade = !gameState.isClosed && !gameState.isPaused;
-            if (canTrade) {
-                document.getElementById('tradeDisabledMessage').style.display = 'none';
-                document.getElementById('tradeSection').style.display = 'block';
-
-                // Update balance and max buy
-                document.getElementById('tradeBalance').textContent = formatMoneyWon(gameState.brokerageCash);
-                const maxQty = Math.floor(gameState.brokerageCash / (price * 1.001));
-                document.getElementById('maxBuyQty').textContent = maxQty.toLocaleString() + '주';
-
-                // Reset quantity input
-                numpadValue = '';
-                document.getElementById('qtyDisplay').textContent = '수량 입력';
-                document.getElementById('qtyDisplay').classList.add('empty');
-                document.getElementById('tradeEstimate').style.display = 'none';
-            } else {
-                document.getElementById('tradeDisabledMessage').style.display = 'block';
-                document.getElementById('tradeSection').style.display = 'none';
-            }
-
-            // Related News
-            const relatedNews = gameState.news.filter(n =>
-                n.scope === 'company' && n.targetId === companyId ||
-                n.scope === 'sector' && n.targetId === company.sector ||
-                n.scope === 'market'
-            ).slice(0, 5);
-
-            document.getElementById('modalNewsList').innerHTML = relatedNews.length ?
-                relatedNews.map(news => createNewsHTML(news)).join('') :
-                '<div class="empty-state">관련 뉴스가 없습니다.</div>';
-
-            document.getElementById('stockModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('stockModal').classList.remove('active');
-            currentStockId = null;
-        }
-
-        function renderMiniChart(candleHistory) {
-            const container = document.getElementById('miniChart');
-            const recentCandles = candleHistory.slice(-20);
-
-            // Optimize min/max calculation without intermediate arrays
-            let min = Infinity;
-            let max = -Infinity;
-            for (const candle of recentCandles) {
-                if (candle.high > max) max = candle.high;
-                if (candle.low < min) min = candle.low;
-            }
-            const range = max - min || 1;
-
-            container.innerHTML = recentCandles.map(candle => {
-                const isUp = candle.close >= candle.open;
-                const bodyTop = Math.max(candle.open, candle.close);
-                const bodyBottom = Math.min(candle.open, candle.close);
-                const bodyHeight = Math.max(((bodyTop - bodyBottom) / range) * 100, 1);
-                const bodyBottomPos = ((bodyBottom - min) / range) * 100;
-
-                const wickHeight = ((candle.high - candle.low) / range) * 100;
-                const wickBottomPos = ((candle.low - min) / range) * 100;
-
-                return `
-                    <div class="candle">
-                        <div class="candle-wick" style="height: ${wickHeight}%; bottom: ${wickBottomPos}%"></div>
-                        <div class="candle-body ${isUp ? 'up' : 'down'}"
-                             style="height: ${bodyHeight}%; bottom: ${bodyBottomPos}%"></div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Numpad Functions
-        function showNumpad() {
-            if (gameState.isClosed || gameState.isPaused) return;
-            numpadMode = 'trade';
-            numpadValue = '';
-
-            // Update numpad for trade mode
-            document.getElementById('numpadTitle').textContent = '구매 수량';
-            document.getElementById('numpadDisplay').textContent = '구매 수량을 입력해주세요';
-            document.getElementById('numpadDisplay').classList.remove('has-value');
-            document.getElementById('numpadSubText').textContent = '예상 금액';
-            document.getElementById('numpadConfirmBtn').textContent = '구매하기';
-
-            // Show trade-specific elements
-            document.getElementById('numpadInfo').style.display = 'block';
-            document.getElementById('quickButtons').style.display = 'flex';
-
-            // Update available amount and max qty
-            const price = gameState.market.prices[currentStockId];
-            const maxQty = Math.floor(gameState.brokerageCash / (price * 1.001));
-            document.getElementById('numpadAvailableAmount').textContent = formatMoneyWon(gameState.brokerageCash);
-            document.getElementById('numpadMaxQty').textContent = `최대 ${maxQty.toLocaleString()}주`;
-
-            document.getElementById('numpadModal').classList.add('active');
-        }
-
-        function showTransferNumpad() {
-            numpadMode = 'transfer';
-            numpadValue = '';
-
-            // Update numpad for transfer mode
-            document.getElementById('numpadTitle').textContent = '이체 금액';
-            document.getElementById('numpadDisplay').textContent = '이체 금액을 입력해주세요';
-            document.getElementById('numpadDisplay').classList.remove('has-value');
-            document.getElementById('numpadSubText').textContent = '';
-            document.getElementById('numpadConfirmBtn').textContent = '이체하기';
-
-            // Hide trade-specific elements
-            document.getElementById('numpadInfo').style.display = 'none';
-            document.getElementById('quickButtons').style.display = 'none';
-
-            document.getElementById('numpadModal').classList.add('active');
-        }
-
-        function closeNumpad() {
-            document.getElementById('numpadModal').classList.remove('active');
-        }
-
-        function addDigit(digit) {
-            if (numpadValue === '' && digit === '0') return;
-            if (numpadValue.length >= 10) return;
-
-            numpadValue += digit;
-            updateNumpadDisplay();
-        }
-
-        function clearNumpad() {
-            numpadValue = '';
-            updateNumpadDisplay();
-        }
-
-        function backspace() {
-            numpadValue = numpadValue.slice(0, -1);
-            updateNumpadDisplay();
-        }
-
-        function addQuickAmount(amount) {
-            if (amount === 'max') {
-                // Calculate max purchasable quantity
-                const price = gameState.market.prices[currentStockId];
-                const maxQty = Math.floor(gameState.brokerageCash / (price * 1.001));
-                numpadValue = String(maxQty);
-            } else {
-                const currentValue = parseInt(numpadValue) || 0;
-                numpadValue = String(currentValue + amount);
-            }
-            updateNumpadDisplay();
-        }
-
-        function updateNumpadDisplay() {
-            const value = parseInt(numpadValue) || 0;
-            const displayEl = document.getElementById('numpadDisplay');
-            const subTextEl = document.getElementById('numpadSubText');
-
-            if (value === 0) {
-                if (numpadMode === 'trade') {
-                    displayEl.textContent = '구매 수량을 입력해주세요';
-                    subTextEl.textContent = '예상 금액';
-                } else {
-                    displayEl.textContent = '이체 금액을 입력해주세요';
-                    subTextEl.textContent = '';
-                }
-                displayEl.classList.remove('has-value');
-            } else {
-                if (numpadMode === 'trade') {
-                    displayEl.textContent = value.toLocaleString() + '주';
-                    const price = gameState.market.prices[currentStockId];
-                    const totalAmount = price * value;
-                    subTextEl.textContent = formatMoneyWon(totalAmount);
-                } else {
-                    displayEl.textContent = formatMoneyWon(value);
-                    subTextEl.textContent = '';
-                }
-                displayEl.classList.add('has-value');
-            }
-        }
-
-        function confirmNumpad() {
-            const value = parseInt(numpadValue) || 0;
-
-            if (numpadMode === 'trade') {
-                if (value === 0) {
-                    document.getElementById('qtyDisplay').textContent = '수량 입력';
-                    document.getElementById('qtyDisplay').classList.add('empty');
-                    document.getElementById('tradeEstimate').style.display = 'none';
-                } else {
-                    document.getElementById('qtyDisplay').textContent = value.toLocaleString() + '주';
-                    document.getElementById('qtyDisplay').classList.remove('empty');
-                    updateTradeEstimate(value);
-                }
-            } else if (numpadMode === 'transfer') {
-                if (value === 0) {
-                    document.getElementById('transferDisplay').textContent = '금액 입력';
-                    document.getElementById('transferDisplay').classList.add('empty');
-                } else {
-                    document.getElementById('transferDisplay').textContent = formatMoneyWon(value);
-                    document.getElementById('transferDisplay').classList.remove('empty');
-                }
-            }
-
-            closeNumpad();
-        }
-
-        function updateTradeEstimate(qty) {
-            const price = gameState.market.prices[currentStockId];
-            const amount = price * qty;
-            const fee = amount * 0.001;
-            const total = amount + fee;
-
-            document.getElementById('estimateAmount').textContent = formatMoneyWon(amount);
-            document.getElementById('estimateFee').textContent = formatMoneyWon(fee);
-            document.getElementById('estimateTotal').textContent = formatMoneyWon(total);
-            document.getElementById('tradeEstimate').style.display = 'block';
-        }
-
-        // Execute Trade
-        function executeTrade(type) {
-            if (gameState.isClosed || gameState.isPaused) {
-                showToast('거래소가 폐장 중이거나 일시정지 상태입니다');
-                return;
-            }
-
-            const qtyText = document.getElementById('qtyDisplay').textContent;
-            if (qtyText === '수량 입력') {
-                showToast('수량을 입력해주세요');
-                return;
-            }
-
-            const qty = parseInt(qtyText.replace(/[^0-9]/g, ''));
-            if (!qty || qty <= 0) {
-                showToast('수량을 입력해주세요');
-                return;
-            }
-
-            const price = gameState.market.prices[currentStockId];
-            const amount = price * qty;
-
-            if (type === 'buy') {
-                const fee = amount * 0.001;
-                const total = amount + fee;
-
-                if (total > gameState.brokerageCash) {
-                    showToast('예수금이 부족합니다');
-                    return;
-                }
-
-                gameState.brokerageCash -= total;
-
-                const holding = gameState.portfolio.find(h => h.companyId === currentStockId);
-                if (holding) {
-                    const totalQty = holding.qty + qty;
-                    holding.avgCost = (holding.avgCost * holding.qty + price * qty) / totalQty;
-                    holding.qty = totalQty;
-                } else {
-                    gameState.portfolio.push({
-                        companyId: currentStockId,
-                        qty: qty,
-                        avgCost: price
-                    });
-                }
-
-                showToast(`✅ 매수 완료: ${qty}주`);
-            } else {
-                const holding = gameState.portfolio.find(h => h.companyId === currentStockId);
-                if (!holding || holding.qty < qty) {
-                    showToast('보유 수량이 부족합니다');
-                    return;
-                }
-
-                const fee = amount * 0.001;
-                const tax = amount * 0.002;
-                const realizedPnL = (price - holding.avgCost) * qty;
-
-                let capitalGainsTax = 0;
-                const holdingValue = price * holding.qty;
-                if (holdingValue >= 1000000000) {
-                    const taxRate = holdingValue >= 10000000000 ? 0.275 :
-                                   holdingValue >= 5000000000 ? 0.242 : 0.22;
-                    capitalGainsTax = Math.max(0, realizedPnL) * taxRate;
-                }
-
-                const total = amount - fee - tax - capitalGainsTax;
-                gameState.brokerageCash += total;
-
-                holding.qty -= qty;
-                if (holding.qty === 0) {
-                    gameState.portfolio = gameState.portfolio.filter(h => h.companyId !== currentStockId);
-                }
-
-                showToast(`✅ 매도 완료: ${qty}주`);
-            }
-
-            updateDisplay();
-            openStockDetail(currentStockId);
-        }
-
-        // Transfer Functions
-        function showTransferConfirm(direction) {
-            const displayText = document.getElementById('transferDisplay').textContent;
-            if (displayText === '금액 입력') {
-                showToast('금액을 입력해주세요');
-                return;
-            }
-
-            const amount = parseInt(displayText.replace(/[^0-9]/g, ''));
-            if (!amount || amount <= 0) {
-                showToast('금액을 입력해주세요');
-                return;
-            }
-
-            const directionText = direction === 'toBrokerage' ? '현금 → 예수금' : '예수금 → 현금';
-            const available = direction === 'toBrokerage' ? gameState.cash : gameState.brokerageCash;
-
-            if (amount > available) {
-                showToast('잔액이 부족합니다');
-                return;
-            }
-
-            document.getElementById('confirmTitle').textContent = '계좌 이체 확인';
-            document.getElementById('confirmMessage').innerHTML =
-                `<strong>${formatMoneyWon(amount)}</strong>을(를)<br>${directionText} 이체하시겠습니까?`;
-
-            confirmCallback = () => executeTransfer(direction, amount);
-            document.getElementById('confirmModal').classList.add('active');
-        }
-
-        function executeTransfer(direction, amount) {
-            if (direction === 'toBrokerage') {
-                gameState.cash -= amount;
-                gameState.brokerageCash += amount;
-                showToast(`✅ 예수금으로 ${formatMoneyWon(amount)} 이체`);
-            } else {
-                gameState.brokerageCash -= amount;
-                gameState.cash += amount;
-                showToast(`✅ 현금으로 ${formatMoneyWon(amount)} 이체`);
-            }
-
-            document.getElementById('transferDisplay').textContent = '금액 입력';
-            document.getElementById('transferDisplay').classList.add('empty');
-            updateDisplay();
-        }
-
-        function confirmAction() {
-            if (confirmCallback) {
-                confirmCallback();
-                confirmCallback = null;
-            }
-            closeConfirm();
-        }
-
-        function closeConfirm() {
-            document.getElementById('confirmModal').classList.remove('active');
-        }
-
-        // Switch Tab
-        function switchTab(tab) {
-            document.querySelectorAll('.gnb-item').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-
-            event.target.closest('.gnb-item').classList.add('active');
-            document.getElementById(tab + 'Panel').classList.add('active');
-
-            if (tab === 'portfolio') renderPortfolio();
-            if (tab === 'news') renderNews();
-        }
-
-        // Render Portfolio
-        function renderPortfolio() {
-            const container = document.getElementById('portfolioList');
-
-            if (gameState.portfolio.length === 0) {
-                container.innerHTML = '<div class="empty-state">보유 중인 주식이 없습니다</div>';
-                return;
-            }
-
-            // Check if we need full re-render (portfolio composition changed)
-            const existingItems = container.querySelectorAll('.portfolio-item');
-            const portfolioIds = gameState.portfolio.map(h => h.companyId).sort().join(',');
-            const existingIds = Array.from(existingItems).map(el => el.dataset.companyId).sort().join(',');
-            const needsFullRender = portfolioIds !== existingIds;
-
-            if (needsFullRender) {
-                // Full render when holdings change
-                container.innerHTML = gameState.portfolio.map(holding => {
-                    const company = gameState.market.companies.find(c => c.id === holding.companyId);
-                    return `
-                        <div class="portfolio-item" data-company-id="${holding.companyId}">
-                            <div class="portfolio-header">
-                                <div>
-                                    <div class="portfolio-name">${company.name}</div>
-                                    <div class="portfolio-ticker">${company.ticker}</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div class="portfolio-name" data-current-price></div>
-                                    <div class="portfolio-ticker" data-price-change></div>
-                                </div>
-                            </div>
-                            <div class="portfolio-grid">
-                                <div class="portfolio-stat">
-                                    <div class="portfolio-label">보유 수량</div>
-                                    <div class="portfolio-value" data-qty></div>
-                                </div>
-                                <div class="portfolio-stat">
-                                    <div class="portfolio-label">평균 단가</div>
-                                    <div class="portfolio-value" data-avg-cost></div>
-                                </div>
-                                <div class="portfolio-stat">
-                                    <div class="portfolio-label">평가액</div>
-                                    <div class="portfolio-value" data-total-value></div>
-                                </div>
-                                <div class="portfolio-stat">
-                                    <div class="portfolio-label">손익</div>
-                                    <div class="portfolio-value" data-pnl></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            // Update values for each holding
-            gameState.portfolio.forEach(holding => {
-                const item = container.querySelector(`[data-company-id="${holding.companyId}"]`);
-                if (!item) return;
-
-                const currentPrice = gameState.market.prices[holding.companyId];
-                const prevClose = gameState.market.previousClosePrices[holding.companyId];
-                const change = ((currentPrice - prevClose) / prevClose * 100);
-                const changeAmount = currentPrice - prevClose;
-                const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
-                const changeSymbol = change > 0 ? '+' : '';
-
-                const totalValue = currentPrice * holding.qty;
-                const pnl = (currentPrice - holding.avgCost) * holding.qty;
-                const pnlPercent = (pnl / (holding.avgCost * holding.qty)) * 100;
-                const pnlClass = pnl >= 0 ? 'positive' : 'negative';
-
-                // Update dynamic values
-                const priceEl = item.querySelector('[data-current-price]');
-                const changeEl = item.querySelector('[data-price-change]');
-                const qtyEl = item.querySelector('[data-qty]');
-                const avgCostEl = item.querySelector('[data-avg-cost]');
-                const totalValueEl = item.querySelector('[data-total-value]');
-                const pnlEl = item.querySelector('[data-pnl]');
-
-                if (priceEl) priceEl.textContent = formatMoneyWon(currentPrice);
-                if (changeEl) {
-                    changeEl.textContent = `${changeSymbol}${formatMoneyWon(changeAmount)} (${changeSymbol}${change.toFixed(2)}%)`;
-                    changeEl.className = `portfolio-ticker ${changeClass}`;
-                }
-                if (qtyEl) qtyEl.textContent = holding.qty.toLocaleString() + '주';
-                if (avgCostEl) avgCostEl.textContent = formatMoneyWon(holding.avgCost);
-                if (totalValueEl) totalValueEl.textContent = formatMoneyWon(totalValue);
-                if (pnlEl) {
-                    pnlEl.innerHTML = `${formatMoneyWon(pnl)}<br><span style="font-size: 11px;">(${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toFixed(2)}%)</span>`;
-                    pnlEl.className = `portfolio-value ${pnlClass}`;
-                }
-            });
-        }
-
-        // Render News
-        function renderNews() {
-            const container = document.getElementById('newsList');
-            container.innerHTML = gameState.news.length ?
-                gameState.news.map(news => createNewsHTML(news)).join('') :
-                '<div class="empty-state">아직 뉴스가 없습니다</div>';
-        }
-
-        function createNewsHTML(news) {
-            const impactClass = news.impactNow >= 0 ? 'impact-positive' : 'impact-negative';
-            const impactText = news.impactNow >= 0 ? `+${(news.impactNow * 100).toFixed(1)}%` : `${(news.impactNow * 100).toFixed(1)}%`;
-
-            return `
-                <div class="news-item ${news.scope}">
-                    <div class="news-header">
-                        <span>Day ${news.day} ${news.timeStr}</span>
-                        <span>${news.scope === 'company' ? '기업' : news.scope === 'sector' ? '업종' : '시장'}</span>
-                    </div>
-                    <div class="news-title">${news.title}</div>
-                    <div class="news-description">${news.description}</div>
-                    <div class="news-impact ${impactClass}">영향: ${impactText}</div>
-                </div>
-            `;
-        }
-
-        // Show Toast
-        function showToast(message) {
-            // Limit number of active toasts
-            if (activeToasts.length >= MAX_TOASTS) {
-                const oldestToast = activeToasts.shift();
-                oldestToast.remove();
-            }
-
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            activeToasts.push(toast);
-
-            setTimeout(() => {
-                toast.remove();
-                const index = activeToasts.indexOf(toast);
-                if (index > -1) activeToasts.splice(index, 1);
-            }, 2500);
-        }
-
-        // Initialize
-        init();
-    </script>
+      }
+    }
+  }
+}
+
+function update(dt){
+  const playerSeg = findSegment(state.position + CAM_DEPTH*CAM_H);
+  const spRatio = state.speed/MAX_SPEED;
+
+  // 조향
+  const dx = dt * 2.1 * spRatio;
+  if(left())  state.playerX -= dx;
+  if(right()) state.playerX += dx;
+  // 커브 원심력
+  state.playerX -= dx * spRatio * playerSeg.curve * 0.32;
+
+  // 가감속
+  if(up())        state.speed += ACCEL * dt;
+  else if(down()) state.speed += BRAKE * dt;
+  else            state.speed += DECEL * dt;
+
+  // 오프로드
+  if((state.playerX < -1.05 || state.playerX > 1.05)){
+    if(state.speed > OFFROAD_LIMIT) state.speed += OFFROAD_DECEL * dt;
+    state.shake = Math.max(state.shake, 4*spRatio);
+  }
+  state.playerX = clamp(state.playerX, -1.6, 1.6);
+  state.speed = clamp(state.speed, 0, MAX_SPEED);
+
+  // 충돌 검사
+  for(const car of playerSeg.cars){
+    if(state.speed <= car.speed) continue;
+    if(Math.abs(state.playerX - car.offset) < 0.34){
+      state.speed = car.speed * 0.55;
+      state.position = car.z - SEG_LEN*2;
+      if(state.position<0) state.position += trackLength;
+      state.shake = 14;
+      state.score = Math.max(0, state.score - 100);
+      flashMsg('충돌! -100');
+      break;
+    }
+  }
+
+  // 전진
+  const move = state.speed * dt;
+  state.position += move;
+  while(state.position >= trackLength) state.position -= trackLength;
+  state.totalDist += move;
+
+  // 점수(거리 비례)
+  state.score += Math.round(move * 0.01 * (1 + spRatio));
+
+  // 체크포인트
+  if(state.totalDist >= state.nextCheckpoint){
+    state.nextCheckpoint += CHECKPOINT_DIST;
+    state.timeLeft += CHECKPOINT_TIME;
+    state.score += 500;
+    flashMsg('체크포인트! +' + CHECKPOINT_TIME + '초');
+  }
+
+  // 시간
+  state.timeLeft -= dt;
+  if(state.timeLeft <= 0){
+    state.timeLeft = 0;
+    gameOver();
+  }
+
+  state.shake = Math.max(0, state.shake - dt*30);
+  updateTraffic(dt, playerSeg);
+}
+
+/* ---------- HUD ---------- */
+const $ = id => document.getElementById(id);
+let msgTimer = null;
+function flashMsg(text){
+  const m = $('msg');
+  m.textContent = text;
+  m.style.opacity = 1;
+  clearTimeout(msgTimer);
+  msgTimer = setTimeout(()=> m.style.opacity = 0, 900);
+}
+function updateHUD(){
+  $('speedVal').textContent = Math.round(state.speed/MAX_SPEED * 240);
+  $('timeVal').textContent = state.timeLeft.toFixed(1);
+  $('distVal').textContent = (state.totalDist/ (SEG_LEN*60) ).toFixed(1);
+  $('scoreVal').textContent = state.score.toLocaleString();
+  $('bestVal').textContent = state.best.toLocaleString();
+}
+
+/* ---------- 게임 흐름 ---------- */
+function startGame(){
+  buildTrack();
+  spawnTraffic(26);
+  for(const car of traffic) findSegment(car.z).cars.push(car);
+  Object.assign(state,{
+    running:true, paused:false, over:false,
+    position:0, playerX:0, speed:0,
+    totalDist:0, timeLeft:60, score:0,
+    passCount:0, nextCheckpoint:CHECKPOINT_DIST, shake:0
+  });
+  $('startOverlay').classList.add('hidden');
+  $('overOverlay').classList.add('hidden');
+  flashMsg('GO!');
+}
+function gameOver(){
+  state.over = true;
+  state.running = false;
+  state.best = Math.max(state.best, state.score);
+  $('finalScore').textContent = state.score.toLocaleString();
+  $('finalDist').textContent = (state.totalDist/(SEG_LEN*60)).toFixed(1);
+  $('finalPass').textContent = state.passCount;
+  $('overTitle').textContent = 'TIME OVER';
+  $('overOverlay').classList.remove('hidden');
+  updateHUD();
+}
+function togglePause(){
+  state.paused = !state.paused;
+  flashMsg(state.paused ? '일시정지 (P로 재개)' : '재개!');
+}
+
+$('startBtn').addEventListener('click', startGame);
+$('retryBtn').addEventListener('click', startGame);
+
+/* ---------- 메인 루프 ---------- */
+let last = performance.now();
+function frame(now){
+  const dt = Math.min((now-last)/1000, 1/25);
+  last = now;
+  if(state.running && !state.paused && !state.over){
+    update(dt);
+    updateHUD();
+  }
+  render();
+  requestAnimationFrame(frame);
+}
+buildTrack();
+spawnTraffic(26);
+for(const car of traffic) findSegment(car.z).cars.push(car);
+requestAnimationFrame(frame);
+</script>
 </body>
 </html>
